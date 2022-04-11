@@ -38,7 +38,6 @@
 #include <utility>
 #include <iterator>
 #include <algorithm>
-#include <random>
 
 using namespace std;
 
@@ -71,22 +70,24 @@ class Individual{
         int Id;
         string sequence;
         int finesse = 0;
-    int hammingDist(Individual str1, Individual str2){
-        int i = 0, count = 0;
-        for ( std::string::iterator it=str1.sequence.begin(); it!=str1.sequence.end(); ++it) 
-        {
-            if (str1.sequence.at(i) != str2.sequence.at(i))
-                count++;
-            i++;
-        }
-        return count;
-        }
-    };
+        
+};
+
+int hammingDist(Individual str1, string str2){
+            int i = 0, count = 0;
+            for ( std::string::iterator it=str1.sequence.begin(); it!=str1.sequence.end(); ++it) 
+            {
+                if (str1.sequence.at(i) != str2.at(i))
+                    count++;
+                i++;
+            }
+            return count;
+}
 
 // Genetic Algorithm Data Structures
-vector<string> population;
-vector<pair<string, int>> population_finesse;
-vector<string> generation_new;
+vector<Individual> population;
+vector<pair<Individual, int>> population_finesse;
+vector<Individual> generation_new;
 
 
 
@@ -128,37 +129,37 @@ void read_parameters(int argc, char **argv) {
 //Fitness Calculation
 
 // Hamming Distance
-void fitness_calculation(vector<string> population_tested, vector<string> initial_input){
+void fitness_calculation(vector<string> initial_input){
 
-    for (int i = 0; i < population_tested.size(); i++)
+    for (int i = 0; i < population.size(); i++)
     {
-        int finesse = 0;
+        population[i].finesse = 0;
         int missmatchs = 0;
         for (int j = 0; j < n_of_sequences; j++)
         {
-                missmatchs = Inidividual.hammingDist(population_tested[i], initial_input[j]);
+                missmatchs = hammingDist(population[i], initial_input[j]);
                 //cout << "missmatchs found: "<< missmatchs << endl;
-                if (missmatchs >= t_value) finesse += 1;
+                if (missmatchs >= t_value) population[i].finesse += 1;
         }
-        //if(flag) cout << "finesse for [" << i << "]: " << finesse << endl;
-        population_finesse.push_back( make_pair(population_tested[i], finesse) );        
+        if(flag) cout << "finesse for [" << population[i].Id << "]: " << population[i].finesse << endl;
+        //population_finesse.push_back( make_pair(population_tested[i], tested_individual.finesse) );        
     }
     
 }
 
-vector<string> mating(string parent1, string parent2){
+vector<Individual> mating(Individual parent1, Individual parent2){
 
-    vector<string> offspring;
+    vector<Individual> offspring;
     string child1, child2;
     if (crossover_type == 0){ //Uniform Crossover
         for (int i = 0 ; i < sequence_length; i++){
             if ( rand() % 2 == 0){
-                child1.push_back(parent1.at(i));
-                child2.push_back(parent2.at(i));
+                child1.push_back(parent1.sequence.at(i));
+                child2.push_back(parent2.sequence.at(i));
             }
             else{
-                child1.push_back(parent2.at(i));
-                child2.push_back(parent1.at(i));
+                child1.push_back(parent2.sequence.at(i));
+                child2.push_back(parent1.sequence.at(i));
             }
 
         }
@@ -168,19 +169,27 @@ vector<string> mating(string parent1, string parent2){
         for (int i = 0; i < sequence_length; i++)
         {
             if ( i >= crossover_point){
-                child1.push_back(parent2.at(i));
-                child2.push_back(parent1.at(i));    
+                child1.push_back(parent2.sequence.at(i));
+                child2.push_back(parent1.sequence.at(i));    
             }
             else{
-                child1.push_back(parent1.at(i));
-                child2.push_back(parent2.at(i));
+                child1.push_back(parent1.sequence.at(i));
+                child2.push_back(parent2.sequence.at(i));
             }
         }
     }
-    offspring.push_back(child1);
-    offspring.push_back(child2);
+    Individual tmp1, tmp2;
+    tmp1.Id = parent1.Id + 100;
+    tmp1.sequence = child1;
+    tmp1.finesse = 0;
+    tmp2.Id = parent2.Id + 100;
+    tmp2.sequence = child2;
+    tmp2.finesse = 0;
+    offspring.push_back(tmp1);
+    offspring.push_back(tmp2);
     return offspring;
 }
+
 
 /**********
 Main function
@@ -249,6 +258,8 @@ int main( int argc, char **argv ) {
         //Population Creation
         for (int i = 0; i < n_population; i++)
         {
+            Individual temp_individual;
+            temp_individual.Id = i;
             string str = "";
             for (int j = 0; j < sequence_length; j++)
             {
@@ -256,41 +267,39 @@ int main( int argc, char **argv ) {
                 str.push_back(ch);
             }
             //cout << str << endl;
-            population.push_back(str);
+            temp_individual.sequence = str;
+            population.push_back(temp_individual);
         }
         
 
         for (int generation = 0; generation < n_generation; generation++)
         {
             //Population Finesse calculation
-            fitness_calculation(population, input_sequence);
+            fitness_calculation(input_sequence);
 
             //Tournament ARC
             //select k candidates
 
             for (int i = 0; i < n_tournement; i++)
             {    
-                shuffle(population_finesse.begin(), population_finesse.end(), mt19937{std::random_device{}()});
-                vector<pair<string,int>> contestant_group1(population_finesse.begin(), population_finesse.begin() + k_tournement_contestant);
-                vector<pair<string,int>> contestant_group2(population_finesse.end() - k_tournement_contestant, population_finesse.end());
+                shuffle(population.begin(), population.end(), mt19937{std::random_device{}()});
+                vector<Individual> contestant_group1(population.begin(), population.begin() + k_tournement_contestant);
+                vector<Individual> contestant_group2(population.end() - k_tournement_contestant, population.end());
 
                 //pick 2 best
 
-                int better = contestant_group1[0].second, best = contestant_group2[0].second; 
-                string parent1 = contestant_group1[0].first, parent2 = contestant_group1[0].first;
+                Individual choosen1,choosen2;
+                choosen1.finesse = 0; choosen2.finesse = 0;
                 for (int j = 0; j < contestant_group1.size(); j++)
                 {
-                    if(contestant_group1[j].second > better){
-                        parent1 = contestant_group1[j].first;
-                        better = contestant_group1[j].second;  
+                    if(contestant_group1[j].finesse > choosen1.finesse){
+                        choosen1 = contestant_group1[j];  
                     }
-                    if(contestant_group2[j].second > best){
-                        parent2 = contestant_group2[j].first;
-                        best = contestant_group2[j].second;
+                    if(contestant_group2[j].finesse > choosen2.finesse){
+                        choosen2 = contestant_group2[j];
                     }
                 }
-                if(flag) 
-                cout << better << ", " << best << endl;
+                if(flag) cout << choosen1.finesse << ", " << choosen2.finesse << endl;
             
 
                 //for ( int i = 0; i < k_tournement_contestant ; i++)cout << contestant_group1[i].first << ", " << contestant_group1[i].second << endl;
@@ -298,7 +307,7 @@ int main( int argc, char **argv ) {
                 //for ( int i = 0; i < k_tournement_contestant ; i++)cout << contestant_group2[i].first << ", " << contestant_group2[i].second << endl;
             
                 //Make them procreate
-                vector<string> tmp = mating(parent1,parent2);
+                vector<Individual> tmp = mating(choosen1,choosen2);
                 generation_new.insert(generation_new.end(), tmp.begin(), tmp.end());
             
             }

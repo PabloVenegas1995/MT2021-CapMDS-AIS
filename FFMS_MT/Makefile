@@ -1,5 +1,5 @@
 #TARGET = cplex greedy local_search metaheuristic hybrid_metaheuristic
-TARGET = greedy
+TARGET = greedy greedyClasses
 CXXFLAGS = -ansi -O3 -fpermissive -std=c++17 
 
 SYSTEM     = x86-64_linux
@@ -34,6 +34,9 @@ all: ${TARGET}
 #	$(CCC) -c $(CCFLAGS) hybrid_metaheuristic.cpp -o hybrid_metaheuristic.o 
  
 greedy: greedy.cpp
+	${CCC} ${CXXFLAGS} -o $@ $^
+
+greedyClasses: greedyClasses.cpp
 	${CCC} ${CXXFLAGS} -o $@ $^
 
 #local_search: local_search.cpp
