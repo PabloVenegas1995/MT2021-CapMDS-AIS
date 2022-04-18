@@ -38,6 +38,7 @@
 #include <utility>
 #include <iterator>
 #include <algorithm>
+#include <random>
 
 using namespace std;
 
@@ -62,32 +63,15 @@ int k_tournement_contestant = n_population / 10;
 int crossover_type = 0; // 0 uniform; 1 single point crossover.
 int crossover_point = 0;
 
+int r_population = 1; // 0 new + random_previous; 1 new + elite; 2 new + elite + random_previous;
 double mutation_rate = 0.05;
 
 
-class Individual{
-    public:
-        int Id;
-        string sequence;
-        int finesse = 0;
-        
-};
-
-int hammingDist(Individual str1, string str2){
-            int i = 0, count = 0;
-            for ( std::string::iterator it=str1.sequence.begin(); it!=str1.sequence.end(); ++it) 
-            {
-                if (str1.sequence.at(i) != str2.at(i))
-                    count++;
-                i++;
-            }
-            return count;
-}
-
 // Genetic Algorithm Data Structures
-vector<Individual> population;
-vector<pair<Individual, int>> population_finesse;
-vector<Individual> generation_new;
+vector<string> population;
+vector<pair<string, int>> population_finesse;
+vector<pair<int,pair<string,int>>> populationes;
+vector<string> generation_new;
 
 
 
@@ -129,67 +113,114 @@ void read_parameters(int argc, char **argv) {
 //Fitness Calculation
 
 // Hamming Distance
-void fitness_calculation(vector<string> initial_input){
-
-    for (int i = 0; i < population.size(); i++)
+bool hammingDist(string str1, string str2)
+{
+    int i = 0, count = 0;
+    bool reached;
+    for ( std::string::iterator it=str1.begin(); it!=str1.end(); ++it) 
     {
-        population[i].finesse = 0;
-        int missmatchs = 0;
+        if (str1.at(i) != str2.at(i))
+            count++;
+        if (count >= t_value) {reached = true; break;}
+        i++;
+    }
+    return reached;
+}
+
+void fitness_calculation(/*vector<string> population_tested,*/ vector<string> initial_input, vector<pair<int,pair<string, int>>> populationes){
+
+    for (int i = 0; i < populationes.size(); i++)
+    {
         for (int j = 0; j < n_of_sequences; j++)
         {
-                missmatchs = hammingDist(population[i], initial_input[j]);
-                //cout << "missmatchs found: "<< missmatchs << endl;
-                if (missmatchs >= t_value) population[i].finesse += 1;
+            bool reached;
+            if ( (reached = hammingDist(populationes[i].second.first, initial_input[j])) == true ) populationes[i].second.second +=1;
         }
-        if(flag) cout << "finesse for [" << population[i].Id << "]: " << population[i].finesse << endl;
-        //population_finesse.push_back( make_pair(population_tested[i], tested_individual.finesse) );        
     }
+    
+
+
+    // for (int i = 0; i < population_tested.size(); i++)
+    // {
+    //     int finesse = 0;
+    //     int missmatchs = 0;
+    //     for (int j = 0; j < n_of_sequences; j++)
+    //     {
+    //             missmatchs = hammingDist(population_tested[i], initial_input[j]);
+    //             //cout << "missmatchs found: "<< missmatchs << endl;
+    //             if (missmatchs >= t_value) finesse += 1;
+    //     }
+    //     //if(flag) cout << "finesse for [" << i << "]: " << finesse << endl;
+    //     population_finesse.push_back( make_pair(population_tested[i], finesse) );        
+    // }
     
 }
 
-vector<Individual> mating(Individual parent1, Individual parent2){
+vector<string> mating(string parent1, string parent2){
 
-    vector<Individual> offspring;
+    vector<string> offspring;
     string child1, child2;
     if (crossover_type == 0){ //Uniform Crossover
         for (int i = 0 ; i < sequence_length; i++){
             if ( rand() % 2 == 0){
-                child1.push_back(parent1.sequence.at(i));
-                child2.push_back(parent2.sequence.at(i));
+                child1.push_back(parent1.at(i));
+                child2.push_back(parent2.at(i));
             }
             else{
-                child1.push_back(parent2.sequence.at(i));
-                child2.push_back(parent1.sequence.at(i));
+                child1.push_back(parent2.at(i));
+                child2.push_back(parent1.at(i));
             }
 
         }
     }
-    else if (crossover_type == 1){
+    else if (crossover_type == 1){ // Crossover Point
         if (crossover_point == 0) crossover_point = sequence_length / 2;
         for (int i = 0; i < sequence_length; i++)
         {
             if ( i >= crossover_point){
-                child1.push_back(parent2.sequence.at(i));
-                child2.push_back(parent1.sequence.at(i));    
+                child1.push_back(parent2.at(i));
+                child2.push_back(parent1.at(i));    
             }
             else{
-                child1.push_back(parent1.sequence.at(i));
-                child2.push_back(parent2.sequence.at(i));
+                child1.push_back(parent1.at(i));
+                child2.push_back(parent2.at(i));
             }
         }
     }
-    Individual tmp1, tmp2;
-    tmp1.Id = parent1.Id + 100;
-    tmp1.sequence = child1;
-    tmp1.finesse = 0;
-    tmp2.Id = parent2.Id + 100;
-    tmp2.sequence = child2;
-    tmp2.finesse = 0;
-    offspring.push_back(tmp1);
-    offspring.push_back(tmp2);
+    offspring.push_back(child1);
+    offspring.push_back(child2);
     return offspring;
 }
 
+void replace_population(){
+    switch (r_population)
+    {
+    case 0:
+        cout << "gen size pre " << generation_new.size();       
+        if (generation_new.size() < n_population){
+            //sample(populationes.begin(), populationes.end(), back_inserter(generation_new), n_population - generation_new.size(), mt19937{std::random_device{}()});
+        }
+        else if ( generation_new.size() > n_population){
+            for (int i = generation_new.size() ; i > n_population; i--) generation_new.pop_back();
+        }
+        cout << "gen size post " << generation_new.size();       
+        populationes.clear();
+        populationes.insert(populationes.begin(), generation_new.begin(), generation_new.end());
+        generation_new.clear();
+        break;
+    case 1:
+        cout << "gen size pre " << generation_new.size();       
+        if (generation_new.size() < n_population) int l = 0;
+        else if ( generation_new.size() > n_population){
+            for (int i = generation_new.size() ; i > n_population; i--) generation_new.pop_back();
+        }
+        cout << "gen size post " << generation_new.size();       
+        
+        break;
+    case 2:
+        break;
+    }
+}
 
 /**********
 Main function
@@ -258,8 +289,6 @@ int main( int argc, char **argv ) {
         //Population Creation
         for (int i = 0; i < n_population; i++)
         {
-            Individual temp_individual;
-            temp_individual.Id = i;
             string str = "";
             for (int j = 0; j < sequence_length; j++)
             {
@@ -267,39 +296,52 @@ int main( int argc, char **argv ) {
                 str.push_back(ch);
             }
             //cout << str << endl;
-            temp_individual.sequence = str;
-            population.push_back(temp_individual);
+            populationes.push_back(make_pair(i,make_pair(str,0)));
+            //population.push_back(str);
         }
         
 
         for (int generation = 0; generation < n_generation; generation++)
         {
             //Population Finesse calculation
-            fitness_calculation(input_sequence);
+            fitness_calculation(/*population, */input_sequence, populationes);
 
             //Tournament ARC
             //select k candidates
 
-            for (int i = 0; i < n_tournement; i++)
-            {    
-                shuffle(population.begin(), population.end(), mt19937{std::random_device{}()});
-                vector<Individual> contestant_group1(population.begin(), population.begin() + k_tournement_contestant);
-                vector<Individual> contestant_group2(population.end() - k_tournement_contestant, population.end());
+            for (int i = 0; i < n_tournement; i++){
+
+                vector<pair<int,pair<string,int>>> get_sample, group1, group2;
+                //sample(populationes.begin(), populationes.end(), back_inserter(get_sample), k_tournement_contestant * 2, mt19937{std::random_device{}()});
+
+                int l = 0;
+                while (l < k_tournement_contestant * 2)
+                {
+                    if (l <k_tournement_contestant) group1.push_back(get_sample[l]);
+                    else group2.push_back(get_sample[l]);
+                    l++;
+                }
+
+//                shuffle(population_finesse.begin(), population_finesse.end(), mt19937{std::random_device{}()});
+//                vector<pair<string,int>> contestant_group1(population_finesse.begin(), population_finesse.begin() + k_tournement_contestant);
+//                vector<pair<string,int>> contestant_group2(population_finesse.end() - k_tournement_contestant, population_finesse.end());
 
                 //pick 2 best
 
-                Individual choosen1,choosen2;
-                choosen1.finesse = 0; choosen2.finesse = 0;
-                for (int j = 0; j < contestant_group1.size(); j++)
+                int better = group1[0].second.second, best = group2[0].second.second; 
+                string parent1 = group1[0].second.first, parent2 = group2[0].second.first;
+                for (int j = 0; j < group1.size(); j++)
                 {
-                    if(contestant_group1[j].finesse > choosen1.finesse){
-                        choosen1 = contestant_group1[j];  
+                    if(group1[j].second.second > better){
+                        parent1 = group1[j].second.first;
+                        better = group1[j].second.second;  
                     }
-                    if(contestant_group2[j].finesse > choosen2.finesse){
-                        choosen2 = contestant_group2[j];
+                    if(group2[j].second.second > best){
+                        parent2 = group2[j].second.first;
+                        best = group2[j].second.second;
                     }
                 }
-                if(flag) cout << choosen1.finesse << ", " << choosen2.finesse << endl;
+                if(flag) cout << better << ", " << best << endl;
             
 
                 //for ( int i = 0; i < k_tournement_contestant ; i++)cout << contestant_group1[i].first << ", " << contestant_group1[i].second << endl;
@@ -307,29 +349,14 @@ int main( int argc, char **argv ) {
                 //for ( int i = 0; i < k_tournement_contestant ; i++)cout << contestant_group2[i].first << ", " << contestant_group2[i].second << endl;
             
                 //Make them procreate
-                vector<Individual> tmp = mating(choosen1,choosen2);
+                vector<string> tmp = mating(parent1,parent2);
                 generation_new.insert(generation_new.end(), tmp.begin(), tmp.end());
             
             }
             //for (string x : generation_new) cout << x << endl<<endl;
 
-            if (generation_new.size() < n_population){
-                shuffle(population.begin(), population.end(), mt19937{std::random_device{}()});
-                for (int i = generation_new.size() - 1 ; i < n_population; i++) generation_new.push_back(population[i]);
-            }
-            else if ( generation_new.size() > n_population){
-                for (int i = generation_new.size() ; i > n_population; i--) generation_new.pop_back();
-            }
-            population.clear();
-
-            //tener un porcentaje de poblacion nueva, elite, y de la generacion anterior, ver brkga
-            ////////////////////////////////////////////////////////////////
-
-            //Choose population changer criteria????????????????????????????
-            
-            ////////////////////////////////////////////////////////////////
-            population.insert(population.begin(), generation_new.begin(), generation_new.end());
-            generation_new.clear();
+            replace_population();
+        
         }
 
         // HERE GOES YOUR GREEDY HEURISTIC
