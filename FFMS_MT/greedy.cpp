@@ -178,7 +178,7 @@ void mating(pair<int,pair<string,int>> parent1, pair<int,pair<string,int>> paren
         mt19937 rng(rd());
         uniform_int_distribution<int> dist(0, sequence_length - 1); 
         int crossover_point = dist(rng);
-        if(flag)cout << crossover_point <<endl;
+        //if(flag)cout << crossover_point <<endl;
         for (int i = 0; i < sequence_length; i++)
         {
             if ( i >= crossover_point){
@@ -209,8 +209,8 @@ void mating(pair<int,pair<string,int>> parent1, pair<int,pair<string,int>> paren
             }
         }
     }
-    generation_new.push_back(make_pair(parent1.first,make_pair(child1,0)));
-    generation_new.push_back(make_pair(parent2.first,make_pair(child2,0)));
+    generation_new.push_back(make_pair(parent1.first + 100,make_pair(child1,0)));
+    generation_new.push_back(make_pair(parent2.first + 100,make_pair(child2,0)));
 }
 
 bool sortbysec( const pair<int,pair<string,int>> &a, const pair<int,pair<string,int>> &b)
@@ -224,18 +224,19 @@ void replace_population(){
     {
         sample(population.begin(), population.end(), back_inserter(generation_new), n_population - generation_new.size(), mt19937{std::random_device{}()});
     }
-    else if(r_population == 1 || r_population == 2){
+    else if(r_population == 1 || r_population == 2){        
         sort(population.begin(), population.end(), sortbysec);  // Nlog(N)  on worst case
-        if (r_population == 1){ for (int l = 0; generation_new.size() < n_population; l++) generation_new.push_back(population[l]);}
-        else if (r_population == 2){
+        if (r_population == 1) for (int l = 0; generation_new.size() < n_population; l++) generation_new.push_back(population[l]);
+        else if (r_population == 2){        
             elite_value = n_population * p_elite;
-            cout << elite_value << " elite value ";
-            int rndm_pop_value = n_population - generation_new.size();
-            cout << rndm_pop_value << " random pop value " << population.size() << " pop size " << endl; 
-            for(int l = 0; l < elite_value; l++)gen_elites.push_back(population[l]);
+            int rndm_pop_value = n_population - elite_value - generation_new.size();
+            for(int l = 0; l < elite_value; l++){
+                gen_elites.push_back(population[0]);
+                population.erase(population.begin());
+            }
             
             if (rndm_replace_type == 0)
-                sample(population.begin(), population.end(), back_inserter(generation_new), n_population - generation_new.size(), mt19937{std::random_device{}()});    
+                sample(population.begin(), population.end(), back_inserter(generation_new), rndm_pop_value, mt19937{std::random_device{}()});                
             else if (rndm_replace_type == 1){
                 random_device dev;
                 mt19937 rng(dev());
@@ -254,11 +255,8 @@ void replace_population(){
             }
         } 
     }
-    cout << population.size() << "Pop size pre clear"<<endl; 
     population.clear();
-    cout << population.size() << "Pop size pre gen new insert"<<endl;
     population.insert(population.begin(), generation_new.begin(), generation_new.end());
-    cout << population.size() << "Pop size pre gen newclear"<<endl;
     generation_new.clear();        
 }
 
@@ -298,7 +296,6 @@ void mutation(){
             }
         }
     }
-    cout << population.size() << "pop size pre elites insert" << endl;
     population.insert(population.end(), gen_elites.begin(), gen_elites.end());
     gen_elites.clear();
 }
@@ -393,8 +390,6 @@ int main( int argc, char **argv ) {
             //Tournament ARC
             //select k candidates
             int k_tournement_contestant = n_population * p_tournement_contestans; //change for a new parameter variable percentage???
-            cout << population.size() << "  pop size post fitness calc" << k_tournement_contestant << " contestants" <<endl;
-            cout << nng_value << " nngvalue" <<endl;
             terminate_tournements = 1;
             while (terminate_tournements){            
                 vector<pair<int,pair<string,int>>> get_sample, group1, group2;
@@ -420,7 +415,6 @@ int main( int argc, char **argv ) {
                 mating(better_parent, best_parent);
                 if (generation_new.size() >= nng_value){
                     while(generation_new.size() > nng_value) generation_new.pop_back();
-                    cout << "breaking tournements"<<endl;
                     terminate_tournements = 0;
                 } 
             }
@@ -433,9 +427,7 @@ int main( int argc, char **argv ) {
             double elapsed = double(end - start)/CLOCKS_PER_SEC;
             if(flag)cout << elapsed << ", elapsed"<<endl;
             if (elapsed >= t_limit)
-            {cout << "braking generations" <<endl;
                 terminate_algorithm = 0;
-            }
         }
 
         // HERE GOES YOUR GREEDY HEURISTIC

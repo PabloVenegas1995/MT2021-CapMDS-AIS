@@ -1,0 +1,27 @@
+#!/bin/bash
+#
+#SBATCH -J CMSA++ # A single job name for the array
+#SBATCH -p main # Partition
+#SBATCH -n 1 # one core
+#--SBATCH-- -N 1 # on one node
+#--SBATCH-- -t 0-0:17:00 # Running time of 17 mins
+#--SBATCH-- --ntasks 4
+#SBATCH --mem 40G # Memory request of 7 GB
+#SBATCH --array=0-0
+#SBATCH -o  bin_outFile_%A_CONF_%a.out 
+#SBATCH -e  bin_errFile_%A_CONF_%a.err
+
+#Declaring configurations
+declare -a CONF_BIN=(
+                                 " -t 1000  -drate_mode 1 -mlim 32000000 -normalizedInput 0  -lsize_feeder 20 -maxage 10 -sols 1 -cpl_time 75 -drate_feeder_l 0.19 -drate_feeder_u 0.73 -adapt_type 1 -greedy_opt 10 " #  Tuning 1  
+
+        )
+##Binary problems
+
+#for i in {1..10}
+#do
+echo  bin_cmsa++/CMSA_capmds -i ${1}  ${CONF_BIN[$SLURM_ARRAY_TASK_ID]} >"resultados/${2}_${SLURM_ARRAY_TASK_ID}"
+bin_cmsa++/CMSA_capmds -i ${1}  ${CONF_BIN[$SLURM_ARRAY_TASK_ID]} >>"resultados/${2}_${SLURM_ARRAY_TASK_ID}"
+#done
+
+~
