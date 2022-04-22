@@ -141,6 +141,7 @@ int hammingDist(string str1, string str2)
 
 void fitness_calculation(){
 
+    //cout << t_value << " tvalue " << endl;
     for (int i = 0; i < population.size(); i++)
     {
         int finesse = 0;
@@ -148,21 +149,32 @@ void fitness_calculation(){
         for (int j = 0; j < n_of_sequences; j++)
         {
                 missmatchs = hammingDist(population[i].second.first, input_sequence[j]);
+                //cout << "missmatch for; [" << i << "] " << missmatchs << endl;
                 if (missmatchs >= t_value) finesse += 1;
         }
         population[i].second.second = finesse;
-    }        
+    }
+    //cout << population[0].second.first << endl;        
+}
+
+int fitness_offspring(string parent){
+    int finesse = 0;
+    int missmatchs = 0;
+    for (int j = 0; j < n_of_sequences; j++){
+        missmatchs = hammingDist(parent, input_sequence[j]);
+        if (missmatchs >= t_value) finesse += 1;
+    }
+    return finesse;
 }
 
 void mating(pair<int,pair<string,int>> parent1, pair<int,pair<string,int>> parent2){
 
-    vector<pair<int,pair<string,int>>> offspring;
-    string child1, child2;
+    string child1 = "", child2 = "";
     if (crossover_type == 0){ //Uniform Crossover
         for (int i = 0 ; i < sequence_length; i++){
             random_device rd;
             mt19937 rng(rd());
-            uniform_int_distribution<int> dist(0, 1);    
+            uniform_int_distribution<mt19937::result_type> dist(0, 1);    
             if ( dist(rng) == 0){
                 child1.push_back(parent1.second.first.at(i));
                 child2.push_back(parent2.second.first.at(i));
@@ -196,7 +208,9 @@ void mating(pair<int,pair<string,int>> parent1, pair<int,pair<string,int>> paren
         mt19937 rng(rd());
         uniform_int_distribution<int> dist(0, sequence_length - 1); 
         int crossover_point1 = dist(rng), crossover_point2 = dist(rng);
-        while (crossover_point1 == crossover_point2){if(flag) cout<<"SON IGUALES"<<endl; crossover_point2 = dist(rng);}
+        while (crossover_point1 == crossover_point2){
+            //if(flag) cout<<"SON IGUALES"<<endl; 
+            crossover_point2 = dist(rng);}
         if (crossover_point1 > crossover_point2) swap(crossover_point1,crossover_point2);
         for (int i = 0; i < sequence_length; i++){
             if (i < crossover_point1 || i > crossover_point2){
@@ -209,8 +223,9 @@ void mating(pair<int,pair<string,int>> parent1, pair<int,pair<string,int>> paren
             }
         }
     }
-    generation_new.push_back(make_pair(parent1.first + 100,make_pair(child1,0)));
-    generation_new.push_back(make_pair(parent2.first + 100,make_pair(child2,0)));
+    
+    generation_new.push_back(make_pair(parent1.first + 100,make_pair(child1,fitness_offspring(child1))));
+    generation_new.push_back(make_pair(parent2.first + 100,make_pair(child2,fitness_offspring(child2))));
 }
 
 bool sortbysec( const pair<int,pair<string,int>> &a, const pair<int,pair<string,int>> &b)
@@ -234,7 +249,6 @@ void replace_population(){
                 gen_elites.push_back(population[0]);
                 population.erase(population.begin());
             }
-            
             if (rndm_replace_type == 0)
                 sample(population.begin(), population.end(), back_inserter(generation_new), rndm_pop_value, mt19937{std::random_device{}()});                
             else if (rndm_replace_type == 1){
@@ -250,7 +264,7 @@ void replace_population(){
                         char ch = mapping[dist6(rng)];
                         str.push_back(ch);
                     }
-                    generation_new.push_back(make_pair(i + 100,make_pair(str,0)));
+                    generation_new.push_back(make_pair(i + 100,make_pair(str,fitness_offspring(str))));
                 }
             }
         } 
@@ -265,7 +279,7 @@ void mutation(){
     mt19937 rng(dev());
     uniform_int_distribution<mt19937::result_type> dist(0,100); // distribution in range [1, 6]
     uniform_int_distribution<mt19937::result_type> dist3(0, 3); 
-                
+    int mutated = 0;                
     for(int i = 0; i < population.size(); i++){
         int mutation = dist(rng);
         if(mutation <= mutation_rate * 100){
@@ -284,18 +298,23 @@ void mutation(){
                     int allele_mutation = dist(rng);
                     char ch = mapping[dist3(rng)];
                     if (allele_mutation <= p_allele_mutation * 100){
+                        //cout << "mutando " << population[i].first;
                         if (forced_mutation == 0)
                             population[i].second.first.at(l) = ch;
                         else if (forced_mutation == 1){
-                            while (ch != population[i].second.first.at(l)) ch = mapping[dist3(rng)];
-                            population[i].second.first.at(i) = ch;
+                            if (ch == population[i].second.first.at(l)){
+                                //cout << "explota" << endl;
+                                while (ch == population[i].second.first.at(l)) ch = mapping[dist3(rng)];
+                                population[i].second.first.at(i) = ch;}
                         }
                     }
                 }
                 //population[i].first = identity + 33000;
             }
+        mutated++;
         }
     }
+    //cout << mutated << " individals mutated" << endl;
     population.insert(population.end(), gen_elites.begin(), gen_elites.end());
     gen_elites.clear();
 }
@@ -351,6 +370,7 @@ int main( int argc, char **argv ) {
         // minimum required Hamming distance
         t_value = int(threshold * sequence_length);
 
+        if(flag) cout << threshold << " threshold " << sequence_length << " sequence lenght " << t_value << " t_value" << endl;
         // the computation time starts now
         //clock_t start = clock();
 
@@ -364,6 +384,7 @@ int main( int argc, char **argv ) {
         mt19937 rng(dev());
         uniform_int_distribution<mt19937::result_type> dist6(0,3); // distribution in range [1, 6]
         
+
         //Population Creation
         for (int i = 0; i < n_population; i++)
         {
@@ -373,9 +394,19 @@ int main( int argc, char **argv ) {
                 char ch = mapping[dist6(rng)];
                 str.push_back(ch);
             }
+            //cout << str <<endl<<endl; 
             population.push_back(make_pair(i,make_pair(str,0)));
         }
-        
+        //exit(0);
+
+        // Heuristic????????
+        // for (int itt = 0; itt < 10; itt++){
+        //     for (int l = 0; l < sequence_length; l++){
+        //         char ch = mapping[rand () % 4];
+        //         while (ch == input_sequence[3].at(l)) ch = mapping[rand () % 4];
+        //             population[itt].second.first.at(l) = ch;
+        //     }        
+        // }
         nng_value = population.size() * p_newGen;
         clock_t start, end; 
         start = clock();
@@ -385,23 +416,30 @@ int main( int argc, char **argv ) {
             //Population Finesse calculation
             fitness_calculation();
 
-            if(flag)for (int i = 0; i < population.size(); i++) cout << "[" << population[i].first <<"] " << population[i].second.second << endl;
+            //if(flag)for (int i = 0; i < population.size(); i++) cout << "[" << population[i].first <<"] " << population[i].second.second << endl;
+            //exit(0);
+            sort(population.begin(), population.end(), sortbysec);  // Nlog(N)  on worst case
+            if(flag) cout << population[0].second.second << " best fitnes so far"<< endl; 
+
+            //exit(0);
 
             //Tournament ARC
             //select k candidates
             int k_tournement_contestant = n_population * p_tournement_contestans; //change for a new parameter variable percentage???
+            //cout << k_tournement_contestant << " number of contestants" <<endl; 
             terminate_tournements = 1;
             while (terminate_tournements){            
                 vector<pair<int,pair<string,int>>> get_sample, group1, group2;
-                sample(population.begin(), population.end(), back_inserter(get_sample), k_tournement_contestant * 2, mt19937{std::random_device{}()});
+                sample(population.begin(), population.end(), back_inserter(group1), k_tournement_contestant, mt19937{std::random_device{}()});
+                sample(population.begin(), population.end(), back_inserter(group2), k_tournement_contestant, mt19937{std::random_device{}()});
 
-                for (int l = 0; l < k_tournement_contestant * 2; l++){
-                    if (l <k_tournement_contestant) group1.push_back(get_sample[l]);
-                    else group2.push_back(get_sample[l]);
-                } 
+                // for (int l = 0; l < k_tournement_contestant * 2; l++){
+                //     if (l <k_tournement_contestant) group1.push_back(get_sample[l]);
+                //     else group2.push_back(get_sample[l]);
+                // } 
 
                 //pick 2 best
-                pair<int,pair<string,int>> better_parent(group1[0].first,make_pair(group1[0].second.first,0)), best_parent(group2[0].first,make_pair(group2[0].second.first,0));
+                pair<int,pair<string,int>> better_parent = group1[0], best_parent = group2[0];
                 for (int j = 0; j < group1.size(); j++)
                 {
                     if(group1[j].second.second > better_parent.second.second)

@@ -29,10 +29,6 @@
 
 using namespace std;
 
-class Prueba{
-    public:
-        string testeo;
-};
 
 vector<string> input_sequence;
 int n_of_sequences;
@@ -45,16 +41,6 @@ double threshold;
 int t_value = 225;
 vector<string> inputFiles;
 
-// int hammingDist(Prueba str1){
-//             int i = 0, count = 0;
-//             for ( std::string::iterator it=str1.testeo.begin(); it!=str1.testeo.end(); ++it) 
-//             {
-//                 if (str1.testeo.at(i) != str1.testeo.at(i))
-//                     count++;
-//                 i++;
-//             }
-//             return count;
-// }
 
 // Hamming Distance
 int hammingDist(string str1, string str2)
@@ -72,8 +58,7 @@ int hammingDist(string str1, string str2)
 vector<pair<string, int>> population_finesse;
 
 void fitness_calculation(vector<string> population_tested, vector<string> initial_input){
-    
-    #pragma omp parallel for 
+    cout << t_value << " tvalue"<< endl;
     for (int i = 0; i < population_tested.size(); i++)
     {
         int finesse = 0;
@@ -81,7 +66,7 @@ void fitness_calculation(vector<string> population_tested, vector<string> initia
         for (int j = 0; j < n_of_sequences; j++)
         {
                 missmatchs = hammingDist(population_tested[i], initial_input[j]);
-                //cout << "missmatchs found: "<< missmatchs << endl;
+                cout << "missmatchs found for: ["<< i <<"] " << missmatchs << endl;
                 if (missmatchs >= t_value) finesse += 1;
         }
         cout << "finesse for [" << i << "]: " << finesse << endl;
@@ -97,25 +82,19 @@ void read_parameters(int argc, char **argv) {
 
     while (iarg < argc) {
         if (strcmp(argv[iarg],"-i")==0) inputFiles.push_back(argv[++iarg]);
+        else if (strcmp(argv[iarg],"-th")==0) threshold = atof(argv[++iarg]);
         else if (strcmp(argv[iarg],"-param1")==0) dummy_integer_parameter = atoi(argv[++iarg]); // example for creating a command line parameter param1 -> integer value is stored in dummy_integer_parameter
         iarg++;
     }
 }
 
 
-vector<Prueba> individuos;
 
 vector<string> population;
 
 
 int main(int argc, char **argv){
-    for (int i = 0; i < 10; i++)
-    {
-        Prueba nuevo;
-        nuevo.testeo = to_string(i);
-        individuos.push_back(nuevo);
-    }
-
+    
     read_parameters(argc,argv);
     
     // setting the output format for doubles to 2 decimals after the comma
@@ -138,6 +117,8 @@ int main(int argc, char **argv){
     rev_mapping['T'] = 2;
     rev_mapping['G'] = 3;
 
+    
+
     // main loop over all input files (problem instances)
     for (int na = 0; na < n_files; ++na) {
 
@@ -155,12 +136,17 @@ int main(int argc, char **argv){
         sequence_length = input_sequence[0].size();
         indata.close();
 
+        t_value = int(threshold * sequence_length);
+
+       cout << threshold << " threshold " << sequence_length << " sequence lenght " << endl;
+
+
         random_device dev;
         mt19937 rng(dev());
         uniform_int_distribution<mt19937::result_type> dist6(0,3); // distribution in range [1, 6]
         
         //Population Creation
-        for (int i = 0; i < 50; i++)
+        for (int i = 0; i < 3; i++)
         {
             string str = "";
             for (int j = 0; j < sequence_length; j++)
@@ -168,13 +154,13 @@ int main(int argc, char **argv){
                 char ch = mapping[dist6(rng)];
                 str.push_back(ch);
             }
-            //cout << str << endl;
+            cout << str << endl;
             population.push_back(str);
         }
         
         clock_t start = clock();
 
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < 1; i++)
         {
         
         fitness_calculation(population, input_sequence);
