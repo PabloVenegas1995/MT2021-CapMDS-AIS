@@ -1,5 +1,5 @@
 #TARGET = cplex greedy local_search metaheuristic hybrid_metaheuristic
-TARGET = greedy greedyClasses pruebas
+TARGET = greedy greedyClasses pruebas derivativeAnnealing
 CXXFLAGS = -ansi -O3 -fpermissive -std=c++17 
 
 SYSTEM     = x86-64_linux
@@ -40,6 +40,9 @@ greedyClasses: greedyClasses.cpp
 	${CCC} ${CXXFLAGS} -o $@ $^
 
 pruebas: pruebas.cpp
+	${CCC} ${CXXFLAGS} -o $@ $^
+
+derivativeAnnealing: derivativeAnnealing.cpp
 	${CCC} ${CXXFLAGS} -o $@ $^
 
 #local_search: local_search.cpp
