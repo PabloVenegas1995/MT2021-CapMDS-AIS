@@ -40,6 +40,8 @@
 #include <algorithm>
 #include <random>
 
+#include "createHeuristicSolution.h"
+
 using namespace std;
 
 // Data structures for the problem data
@@ -59,7 +61,6 @@ int flag = 0;
 //Genetic Algorithm Hyper-Parameters
 int n_population = 50; //Cambiar por un limite de tiempo
 int n_tournement = 1;
-double p_tournement_contestans = 0.1;
 int k_contestants = 5; 
 int crossover_type = 0; // 0 uniform; 1 single point crossover.
 
@@ -74,6 +75,7 @@ int mutation_type = 0;  // 0 change sequence of individual for a new random; 1 c
 double p_allele_mutation = 0.1; //parameter of probability to change an allel
 int forced_mutation = 0; // 0 change but can be equal, 1 force change on the allele
 
+float determinism = 1;
 
 // Genetic Algorithm Data Structures
 vector<pair<int,pair<string,int>>> population;
@@ -92,15 +94,15 @@ vector<string> testingPop;
 int dummy_integer_parameter = 0;
 
 
-inline int stoi(string &s) {
+// inline int stoi(string &s) {
 
-  return atoi(s.c_str());
-}
+//   return atoi(s.c_str());
+// }
 
-inline double stof(string &s) {
+// inline double stof(string &s) {
 
-  return atof(s.c_str());
-}
+//   return atof(s.c_str());
+// }
 
 void read_parameters(int argc, char **argv) {
 
@@ -108,28 +110,30 @@ void read_parameters(int argc, char **argv) {
 
     while (iarg < argc) {
         if (strcmp(argv[iarg],"-i")==0) inputFiles.push_back(argv[++iarg]);
-        else if (strcmp(argv[iarg],"-testInput")==0) testingPop.push_back(argv[++iarg]);
         else if (strcmp(argv[iarg],"-tlim")==0) t_limit = atof(argv[++iarg]);
         else if (strcmp(argv[iarg],"-th")==0) threshold = atof(argv[++iarg]);
         else if (strcmp(argv[iarg],"-np")==0) n_population = atoi(argv[++iarg]);
-        else if (strcmp(argv[iarg],"-kc")==0) k_contestants = atoi(argv[++iarg]);
         else if (strcmp(argv[iarg],"-ct")==0) crossover_type = atoi(argv[++iarg]);
         else if (strcmp(argv[iarg],"-png")==0) p_newGen = atof(argv[++iarg]);
         else if (strcmp(argv[iarg],"-pe")==0) p_elite = atof(argv[++iarg]);
         else if (strcmp(argv[iarg],"-rp")==0) r_population = atoi(argv[++iarg]);
         else if (strcmp(argv[iarg],"-rrt")==0) rndm_replace_type = atoi(argv[++iarg]);
         else if (strcmp(argv[iarg],"-mr")==0) mutation_rate = atof(argv[++iarg]);
-        else if (strcmp(argv[iarg],"-mt")==0) mutation_type = atoi(argv[++iarg]);
-        else if (strcmp(argv[iarg],"-pam")==0) p_allele_mutation = atof(argv[++iarg]);
-        else if (strcmp(argv[iarg],"-fm")==0) forced_mutation = atoi(argv[++iarg]);        
         else if (strcmp(argv[iarg],"-flag")==0) flag = atoi(argv[++iarg]);
         else if (strcmp(argv[iarg],"-param1")==0) dummy_integer_parameter = atoi(argv[++iarg]); // example for creating a command line parameter param1 -> integer value is stored in dummy_integer_parameter
         iarg++;
     }
 }
 
-//Fitness Calculation
+void getSample(vector<pair<int,pair<string,int>>> pop, vector<pair<int,pair<string,int>>> out, int size){
+    auto rng = default_random_engine {};
+    shuffle(pop.begin(), pop.end(), rng);
+    for(int i = 0; i < size; i++){
+        out.push_back(pop[i]);
+    }
+}
 
+//Fitness Calculation
 // Hamming Distance
 int hammingDist(string str1, string str2)
 {
@@ -137,13 +141,6 @@ int hammingDist(string str1, string str2)
     for( int it = 0; it < sequence_length ; it++){
         if (str1.at(it) != str2.at(it)) count++;
     }
-
-    // for ( std::string::iterator it=str1.begin(); it!=str1.end(); ++it) 
-    // {
-    //     if (str1.at(i) != str2.at(i))
-    //         count++;
-    //     i++;
-    // }
     return count;
 }
 
@@ -165,26 +162,12 @@ void fitness_calculation(){
     //cout << population[0].second.first << endl;        
 }
 
-int fitness_offspring(string parent){
-    int finesse = 0;
-    int missmatchs = 0;
-    for (int j = 0; j < n_of_sequences; j++){
-        missmatchs = hammingDist(parent, input_sequence[j]);
-        if (missmatchs >= t_value) finesse += 1;
-    }
-    return finesse;
-}
-
 void mating(pair<int,pair<string,int>> parent1, pair<int,pair<string,int>> parent2){
 
     string child1 = "", child2 = "";        
     if (crossover_type == 0){ //Uniform Crossover
-        random_device rd;
-        mt19937 rng(rd());
-        uniform_int_distribution<mt19937::result_type> dist(0, 1);    
         for (int i = 0 ; i < sequence_length; i++){
-            if ( dist(rng) == 0){
-            //if (rand() % 2 == 0){    
+            if (rand() % 2 == 0){    
                 child1 += parent1.second.first.at(i);
                 child2 += parent2.second.first.at(i);
             }
@@ -195,11 +178,7 @@ void mating(pair<int,pair<string,int>> parent1, pair<int,pair<string,int>> paren
         }
     }
     else if (crossover_type == 1){ // Crossover Point, pivote al azar
-        random_device rd;
-        mt19937 rng(rd());
-        uniform_int_distribution<int> dist(0, sequence_length - 1); 
-        int crossover_point = dist(rng);
-        //if(flag)cout << crossover_point <<endl;
+        int crossover_point = rand () % (sequence_length - 1);
         for (int i = 0; i < sequence_length; i++)
         {
             if ( i >= crossover_point){
@@ -213,13 +192,10 @@ void mating(pair<int,pair<string,int>> parent1, pair<int,pair<string,int>> paren
         }
     }
     else if (crossover_type == 2){ //Dual Crossover point, pivotes al azar
-        random_device rd;
-        mt19937 rng(rd());
-        uniform_int_distribution<int> dist(0, sequence_length - 1); 
-        int crossover_point1 = dist(rng), crossover_point2 = dist(rng);
+        int crossover_point1 = rand () % (sequence_length -1), crossover_point2 = rand () % (sequence_length -1);
         while (crossover_point1 == crossover_point2){
             //if(flag) cout<<"SON IGUALES"<<endl; 
-            crossover_point2 = dist(rng);}
+            crossover_point2 = rand () % (sequence_length -1);}
         if (crossover_point1 > crossover_point2) swap(crossover_point1,crossover_point2);
         for (int i = 0; i < sequence_length; i++){
             if (i < crossover_point1 || i > crossover_point2){
@@ -244,99 +220,56 @@ bool sortbysec( const pair<int,pair<string,int>> &a, const pair<int,pair<string,
 
 void replace_population(){
             
-    if (r_population == 0)
+    switch (r_population)
     {
-        //sample(population.begin(), population.end(), back_inserter(generation_new), n_population - generation_new.size(), mt19937{std::random_device{}()});
-    }
-    else if(r_population == 1 || r_population == 2){        
+    case 0:
+        getSample(population, generation_new, n_population - generation_new.size());
+        break;
+    case 1:
         sort(population.begin(), population.end(), sortbysec);  // Nlog(N)  on worst case
-        if (r_population == 1) for (int l = 0; generation_new.size() < n_population; l++) generation_new.push_back(population[l]);
-        else if (r_population == 2){        
-            elite_value = n_population * p_elite;
+        for (int l = 0; generation_new.size() < n_population; l++) 
+            generation_new.push_back(population[l]);
+        break;
+    case 2:
+        sort(population.begin(), population.end(), sortbysec);  // Nlog(N)  on worst case
+        elite_value = n_population * p_elite;
             int rndm_pop_value = n_population - elite_value - generation_new.size();
             for(int l = 0; l < elite_value; l++){
                 gen_elites.push_back(population[0]);
                 population.erase(population.begin());
             }
             if (rndm_replace_type == 0)
-                int x = 1;//sample(population.begin(), population.end(), back_inserter(generation_new), rndm_pop_value, mt19937{std::random_device{}()});                
+                getSample(population, generation_new, rndm_pop_value);                
             else if (rndm_replace_type == 1){
-                random_device dev;
-                mt19937 rng(dev());
-                uniform_int_distribution<mt19937::result_type> dist6(0,3);
-                
                 for (int i = 0; i < rndm_pop_value; i++)
                 {
                     string str = "";
                     for (int j = 0; j < sequence_length; j++)
                     {
-                        char ch = mapping[dist6(rng)];
+                        char ch = mapping[rand () % 4];
                         str.push_back(ch);
                     }
-                    generation_new.push_back(make_pair(i + 100,make_pair(str,fitness_offspring(str))));
+                    generation_new.push_back(make_pair(i + 100,make_pair(str,0)));
                 }
             }
-        } 
-    }
+        break;
+    }    
     population.clear();
     population.insert(population.begin(), generation_new.begin(), generation_new.end());
     generation_new.clear();        
 }
 
 void mutation(){
-    random_device dev;
-    mt19937 rng(dev());
-    uniform_int_distribution<mt19937::result_type> dist(0,100); // distribution in range [1, 6]
-    uniform_int_distribution<mt19937::result_type> dist3(0, 3); 
     int mutated = 0;
-    if (mutation_type == 2){
-        for (int i = 0; i < population.size(); i++){
-            for (int j = 0; j < sequence_length; j++){
-                int mutation = rand() % 100;
-                if(mutation <= mutation_rate * 100){
-                    char ch = mapping[rand() % 4];
-                    while (ch == population[i].second.first.at(j)) ch = mapping[rand() % 4];
-                    population[i].second.first.at(j) = ch;
-                }           
+    for (int i = 0; i < population.size(); i++){
+        for (int j = 0; j < sequence_length; j++){
+            if(rand() % 100 <= mutation_rate * 100){
+                char ch = mapping[rand() % 4];
+                while (ch == population[i].second.first.at(j)) ch = mapping[rand() % 4];
+                population[i].second.first.at(j) = ch;
+                mutated++;
             }
         }
-        mutated++;
-    }
-    else{                
-    for(int i = 0; i < population.size(); i++){
-        int mutation = dist(rng);
-        if(mutation <= mutation_rate * 100){
-            int identity = population[i].first;
-            if (mutation_type == 0){
-                string str = "";
-                for (int j = 0; j < sequence_length; j++){
-                    char ch = mapping[dist3(rng)];
-                    str.push_back(ch);
-                }
-                //population[i].first = identity + 22000;
-                population[i].second.first = str;
-            }
-            else if(mutation_type == 1){
-                for (int l = 0; l < sequence_length; l++){
-                    int allele_mutation = dist(rng);
-                    char ch = mapping[dist3(rng)];
-                    if (allele_mutation <= p_allele_mutation * 100){
-                        //cout << "mutando " << population[i].first;
-                        if (forced_mutation == 0)
-                            population[i].second.first.at(l) = ch;
-                        else if (forced_mutation == 1){
-                            if (ch == population[i].second.first.at(l)){
-                                //cout << "explota" << endl;
-                                while (ch == population[i].second.first.at(l)) ch = mapping[dist3(rng)];
-                                population[i].second.first.at(i) = ch;}
-                        }
-                    }
-                }
-                //population[i].first = identity + 33000;
-            }
-        mutated++;
-        }
-    }
     }
     if (flag == 2) cout << mutated << " individals mutated" << endl;
     population.insert(population.end(), gen_elites.begin(), gen_elites.end());
@@ -395,72 +328,47 @@ int main( int argc, char **argv ) {
         t_value = int(threshold * sequence_length);
 
         if(flag) cout << threshold << " threshold " << sequence_length << " sequence lenght " << t_value << " t_value" << endl;
-        // the computation time starts now
-        //clock_t start = clock();
 
         // Example for requesting the elapsed computation time (in seconds) at any moment: 
         // clock_t end = clock();
         // double elapsed = double(end - start)/CLOCKS_PER_SEC;
 
         cout << "start file " << inputFiles[na] << endl;
-        // //////////////////////////////////////////////////////
-        // ifstream testdata;
-        // testdata.open(testingPop[0].c_str());
-        // if(!testdata) { // file couldn't be opened
-        //     cout << "Error: file could not be opened" << endl;
-        // }
-
-        // vector<string> testSeq;
-        // input_sequence.clear();
-        // string seqtest;
-        // while (testdata >> seqtest) testSeq.push_back(seqtest);
-        // testdata.close();
-        ////////////////////////////////
-        //random_device dev;
-        //mt19937 rng(dev());
-        //uniform_int_distribution<mt19937::result_type> dist6(0,3); // distribution in range [1, 6]
-        
 
         // generar dt = t * porcentago (0.50) * iteraciones (generaciones)
         srand(time(0));
         
         //Population Creation
-        for (int i = 0; i < n_population; i++)
+        int popuCreation = 2;
+        switch (popuCreation)
         {
-            string str = "";
-            for (int j = 0; j < sequence_length; j++)
+        case 1:
+            for (int i = 0; i < n_population; i++)
             {
-                char ch = mapping[rand() % 4];
-                str.push_back(ch);
+                string str = "";
+                for (int j = 0; j < sequence_length; j++)
+                {
+                    char ch = mapping[rand() % 4];
+                    str.push_back(ch);
+                }
+                //cout << str <<endl<<endl; 
+                population.push_back(make_pair(i,make_pair(str,0)));
             }
-            //cout << str <<endl<<endl; 
-            population.push_back(make_pair(i,make_pair(str,0)));
+            break;
+        case 2:
+            for (int i = 0; i < n_population; i++)
+            {
+                population.push_back(make_pair(i,make_pair(createHeuristicSolution(inputFiles[na], threshold, determinism),0)));
+            }
+        default:
+            break;
         }
-
-        // for (int i = 0; i < testSeq.size(); i++)
-        // {
-        //     cout << i;
-        //     population.push_back(make_pair(i,make_pair(testSeq[i],0)));
-            
-        // }
                 
         nng_value = population.size() * p_newGen;
         clock_t start, end; 
         start = clock();
         int terminate_algorithm = 1, terminate_tournements = 1;
-        int dtGeneration = 0;
-        double sPoint = 0.70;
-        int dtmod = 500;
-        double dtsum = 0.05;
         while (terminate_algorithm){
-// calcular derivada para generar el cambio de thresolhd encontrando los plateous
-            if (threshold == 0.85) 
-                if(dtGeneration % dtmod == 0)
-                    if (int((threshold * sequence_length) * (sPoint + (dtsum * ((double)dtGeneration / dtmod)))) <= int((threshold * sequence_length))){ 
-                        t_value = int((threshold * sequence_length) * (sPoint + (dtsum * ((double)dtGeneration / dtmod))));
-                        cout << sPoint + (dtsum * ((double)dtGeneration / dtmod)) <<endl;
-                        cout << t_value <<endl;
-                    }
             //Population Finesse calculation
             fitness_calculation();
 
@@ -477,26 +385,18 @@ int main( int argc, char **argv ) {
 
             //Tournament ARC
             //select k candidates
-            //int k_tournement_contestant = n_population * p_tournement_contestans; //change for a new parameter variable percentage???
-            //cout << k_tournement_contestant << " number of contestants" <<endl; 
             terminate_tournements = 1;
             while (terminate_tournements){            
                 vector<pair<int,pair<string,int>>> get_sample, group1, group2;
-                //sample(population.begin(), population.end(), back_inserter(get_sample), k_contestants * 2, mt19937{std::random_device{}()});
+                getSample(population, get_sample, k_contestants * 2);
+                
+                for (int l = 0; l < k_contestants * 2; l++){
+                    if (l <k_contestants) group1.push_back(population[l]);
+                    else group2.push_back(population[l]);
+                } 
                 auto rng = default_random_engine {};
                 shuffle(population.begin(), population.end(), rng);
-                //sample(population.begin(), population.end(), back_inserter(group1), k_tournement_contestant, mt19937{std::random_device{}()});
-                //sample(population.begin(), population.end(), back_inserter(group2), k_tournement_contestant, mt19937{std::random_device{}()});
-
-                for (int l = 0; l < k_contestants * 2; l++){
-                     if (l <k_contestants) group1.push_back(population[l]);
-                     else group2.push_back(population[l]);
-                } 
-                // for (int l = 0; l < k_contestants * 2; l++){
-                //      if (l <k_contestants) group1.push_back(get_sample[l]);
-                //      else group2.push_back(get_sample[l]);
-                // } 
-
+                
                 //pick 2 best
                 pair<int,pair<string,int>> better_parent = group1[0], best_parent = group2[0];
                 for (int j = 0; j < group1.size(); j++)
@@ -529,7 +429,6 @@ int main( int argc, char **argv ) {
             if (elapsed >= t_limit)
                 terminate_algorithm = 0;
 
-            dtGeneration++;
         }
 
         // HERE GOES YOUR GREEDY HEURISTIC
