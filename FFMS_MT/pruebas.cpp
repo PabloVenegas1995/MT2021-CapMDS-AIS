@@ -60,9 +60,10 @@ int flag = 0;
 
 //Genetic Algorithm Hyper-Parameters
 int n_population = 50; //Cambiar por un limite de tiempo
+int population_Creation = 0; // 0 creates the population randomly, 1 creates the population with Prof. Pinacho's Heuristics
 int n_tournement = 1;
 int k_contestants = 5; 
-int crossover_type = 0; // 0 uniform; 1 single point crossover.
+int crossover_type = 0; // 0 uniform; 1 single point crossover; 2 double point crossover.
 
 int r_population = 0;   // 0 new + random_previous; 1 new + elite; 2 new + elite + random_previous;
 double p_newGen = 0.7;       // parameter of percentage of new offspring permited for r_population 1 & 2
@@ -71,9 +72,6 @@ double p_elite     = 0.2;    // parameter of percentage of elites
 int elite_value;
 int rndm_replace_type = 0; //0 select random from this gen; 1 create completely random new individual
 double mutation_rate = 0.05; //parameter of probability to change a individual
-int mutation_type = 0;  // 0 change sequence of individual for a new random; 1 change allel(char) of individual under a percentage; 2 new mutation matrix
-double p_allele_mutation = 0.1; //parameter of probability to change an allel
-int forced_mutation = 0; // 0 change but can be equal, 1 force change on the allele
 
 float determinism = 1;
 
@@ -113,6 +111,8 @@ void read_parameters(int argc, char **argv) {
         else if (strcmp(argv[iarg],"-tlim")==0) t_limit = atof(argv[++iarg]);
         else if (strcmp(argv[iarg],"-th")==0) threshold = atof(argv[++iarg]);
         else if (strcmp(argv[iarg],"-np")==0) n_population = atoi(argv[++iarg]);
+        else if (strcmp(argv[iarg],"-pc")==0) population_Creation = atoi(argv[++iarg]);
+        else if (strcmp(argv[iarg],"-dt")==0) determinism = atof(argv[++iarg]);
         else if (strcmp(argv[iarg],"-ct")==0) crossover_type = atoi(argv[++iarg]);
         else if (strcmp(argv[iarg],"-png")==0) p_newGen = atof(argv[++iarg]);
         else if (strcmp(argv[iarg],"-pe")==0) p_elite = atof(argv[++iarg]);
@@ -154,12 +154,12 @@ void fitness_calculation(){
         for (int j = 0; j < n_of_sequences; j++)
         {
                 missmatchs = hammingDist(population[i].second.first, input_sequence[j]);
-                //cout << "missmatch for; [" << i << "] " << missmatchs << endl;
+                if (flag > 2) cout << "missmatch for; [" << i << "] " << missmatchs << endl;
                 if (missmatchs >= t_value) finesse += 1;
         }
         population[i].second.second = finesse;
     }
-    //cout << population[0].second.first << endl;        
+    if (flag > 1) cout << population[0].second.first << endl;        
 }
 
 void mating(pair<int,pair<string,int>> parent1, pair<int,pair<string,int>> parent2){
@@ -194,7 +194,6 @@ void mating(pair<int,pair<string,int>> parent1, pair<int,pair<string,int>> paren
     else if (crossover_type == 2){ //Dual Crossover point, pivotes al azar
         int crossover_point1 = rand () % (sequence_length -1), crossover_point2 = rand () % (sequence_length -1);
         while (crossover_point1 == crossover_point2){
-            //if(flag) cout<<"SON IGUALES"<<endl; 
             crossover_point2 = rand () % (sequence_length -1);}
         if (crossover_point1 > crossover_point2) swap(crossover_point1,crossover_point2);
         for (int i = 0; i < sequence_length; i++){
@@ -271,7 +270,7 @@ void mutation(){
             }
         }
     }
-    if (flag == 2) cout << mutated << " individals mutated" << endl;
+    if (flag > 1) cout << mutated << " individals mutated" << endl;
     population.insert(population.end(), gen_elites.begin(), gen_elites.end());
     gen_elites.clear();
 }
@@ -339,8 +338,7 @@ int main( int argc, char **argv ) {
         srand(time(0));
         
         //Population Creation
-        int popuCreation = 2;
-        switch (popuCreation)
+        switch (population_Creation)
         {
         case 1:
             for (int i = 0; i < n_population; i++)
@@ -372,16 +370,13 @@ int main( int argc, char **argv ) {
             //Population Finesse calculation
             fitness_calculation();
 
-            if(flag == 2)for (int i = 0; i < population.size(); i++) cout << "[" << population[i].second.first <<"] " << population[i].second.second << endl;
-            //exit(0);
+            if(flag > 1)for (int i = 0; i < population.size(); i++) cout << "[" << population[i].second.first <<"] " << population[i].second.second << endl;
             sort(population.begin(), population.end(), sortbysec);  // Nlog(N)  on worst case
             if(flag) cout << population[0].second.second << " best    ";//<< endl; 
             
-            if (flag == 2) for (int a = 0; a < population.size(); a++){
+            if (flag > 1) for (int a = 0; a < population.size(); a++){
                 cout <<population[a].second.second << endl;
             }
-            //if (flag)cout << upperTh << " many bests    "; // << endl;
-            //exit(0);
 
             //Tournament ARC
             //select k candidates
@@ -394,8 +389,6 @@ int main( int argc, char **argv ) {
                     if (l <k_contestants) group1.push_back(population[l]);
                     else group2.push_back(population[l]);
                 } 
-                auto rng = default_random_engine {};
-                shuffle(population.begin(), population.end(), rng);
                 
                 //pick 2 best
                 pair<int,pair<string,int>> better_parent = group1[0], best_parent = group2[0];
@@ -406,7 +399,6 @@ int main( int argc, char **argv ) {
                     if(group2[j].second.second > best_parent.second.second)
                         best_parent = group2[j];
                 }
-                //if(flag) cout << better_parent.second.second << ", " << best_parent.second.second << endl;
                 
                 //Make them procreate
                 mating(better_parent, best_parent);
@@ -416,12 +408,9 @@ int main( int argc, char **argv ) {
                 } 
             }
 
-            if (flag == 3)for (int ii = 0; ii < population.size(); ii++) cout << generation_new[ii].second.first<<endl<<endl;
-            //exit(0);
+            if (flag > 2)for (int ii = 0; ii < population.size(); ii++) cout << generation_new[ii].second.first<<endl<<endl;
             replace_population();
             mutation();
-            //cout <<endl;
-            //
             //mutacion sobre nP menos elite
             end = clock();
             double elapsed = double(end - start)/CLOCKS_PER_SEC;
@@ -430,11 +419,6 @@ int main( int argc, char **argv ) {
                 terminate_algorithm = 0;
 
         }
-
-        // HERE GOES YOUR GREEDY HEURISTIC
-        // When finished with generating a solution, first take the computation time as explained above. Say you store it in variable 'time'.
-        // Then write the following to the screen: cout << "value " << <value of your solution> << "\ttime " << time << endl;
-
         cout << "end file " << inputFiles[na] << endl;
     }
 
