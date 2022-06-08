@@ -39,9 +39,7 @@
 #include <iterator>
 #include <algorithm>
 #include <random>
-#include <numeric>
-#include <climits>
-#include <limits.h>
+
 using namespace std;
 
 // Data structures for the problem data
@@ -51,7 +49,7 @@ int sequence_length;
 int alphabet_size = 4;
 map<int,char> mapping;
 map<char,int> rev_mapping;
-double threshold = 0.70;
+double threshold;
 int t_value;
 
 double t_limit;
@@ -82,8 +80,7 @@ vector<pair<int,pair<string,int>>> population;
 vector<pair<int,pair<string,int>>> generation_new;
 vector<pair<int,pair<string,int>>> gen_elites;
 
-// Annealing Structures
-vector<int> blockPerCurve;
+
 
 
 // vector for keeping all the names of the input files
@@ -113,6 +110,7 @@ void read_parameters(int argc, char **argv) {
         if (strcmp(argv[iarg],"-i")==0) inputFiles.push_back(argv[++iarg]);
         else if (strcmp(argv[iarg],"-testInput")==0) testingPop.push_back(argv[++iarg]);
         else if (strcmp(argv[iarg],"-tlim")==0) t_limit = atof(argv[++iarg]);
+        else if (strcmp(argv[iarg],"-th")==0) threshold = atof(argv[++iarg]);
         else if (strcmp(argv[iarg],"-np")==0) n_population = atoi(argv[++iarg]);
         else if (strcmp(argv[iarg],"-kc")==0) k_contestants = atoi(argv[++iarg]);
         else if (strcmp(argv[iarg],"-ct")==0) crossover_type = atoi(argv[++iarg]);
@@ -139,6 +137,13 @@ int hammingDist(string str1, string str2)
     for( int it = 0; it < sequence_length ; it++){
         if (str1.at(it) != str2.at(it)) count++;
     }
+
+    // for ( std::string::iterator it=str1.begin(); it!=str1.end(); ++it) 
+    // {
+    //     if (str1.at(i) != str2.at(i))
+    //         count++;
+    //     i++;
+    // }
     return count;
 }
 
@@ -174,8 +179,12 @@ void mating(pair<int,pair<string,int>> parent1, pair<int,pair<string,int>> paren
 
     string child1 = "", child2 = "";        
     if (crossover_type == 0){ //Uniform Crossover
+        random_device rd;
+        mt19937 rng(rd());
+        uniform_int_distribution<mt19937::result_type> dist(0, 1);    
         for (int i = 0 ; i < sequence_length; i++){
-            if (rand() % 2 == 0){    
+            if ( dist(rng) == 0){
+            //if (rand() % 2 == 0){    
                 child1 += parent1.second.first.at(i);
                 child2 += parent2.second.first.at(i);
             }
@@ -186,7 +195,10 @@ void mating(pair<int,pair<string,int>> parent1, pair<int,pair<string,int>> paren
         }
     }
     else if (crossover_type == 1){ // Crossover Point, pivote al azar
-        int crossover_point = rand() % sequence_length;
+        random_device rd;
+        mt19937 rng(rd());
+        uniform_int_distribution<int> dist(0, sequence_length - 1); 
+        int crossover_point = dist(rng);
         //if(flag)cout << crossover_point <<endl;
         for (int i = 0; i < sequence_length; i++)
         {
@@ -331,58 +343,6 @@ void mutation(){
     gen_elites.clear();
 }
 
-int nAscending = 0;
-int nDescending = 0;
-int steady = 0;
-int nToChange = 3; // how many steadys are needed to change the treshold;
-int prevVal = INT_MIN;
-enum Direction { Ascending, Descending}; 
-
-Direction direction = Ascending;
-
-void annealing(int best){
-    
-    bool change = false;
-    t_value = int(threshold * sequence_length);
-    
-    int curVal = best;
-
-        if (prevVal < curVal) {  // (still) ascending?
-            if (direction != Ascending) {
-                direction = Ascending;
-                nAscending++;
-            }
-            else{ nAscending++; steady++;}
-            direction = Ascending;
-        }
-        else if (prevVal > curVal) { // (still) descending?
-            if (direction != Descending) { // starts descending?
-                direction = Descending;
-                nDescending++;
-            }
-            else {nDescending++; steady++;}
-            direction = Descending;
-        }
-        // prevVal == curVal is simply ignored...
-        if (curVal == prevVal) steady++;
-        if ( steady + nToChange < nAscending + nDescending  ||  nAscending + nDescending + nToChange < steady) change = true;
-
-        if(flag)cout << nAscending <<endl << nDescending << endl<<steady <<endl <<endl;
-
-
-        prevVal = curVal;
-
-    if (change){
-        blockPerCurve.clear();
-        threshold+= 0.03;
-        steady = 0;
-        nAscending = 0;
-        nDescending = 0;
-        if(flag)cout << threshold <<endl;
-    }
-
-}
-
 /**********
 Main function
 **********/
@@ -428,8 +388,8 @@ int main( int argc, char **argv ) {
         sequence_length = input_sequence[0].size();
         indata.close();
 
-        if(flag) cout << "n of sequences " << n_of_sequences << endl;
-        if(flag) cout << "sequence lenght " << sequence_length << endl;
+        cout << "n of sequences " << n_of_sequences << endl;
+        cout << "sequence lenght " << sequence_length << endl;
 
         // minimum required Hamming distance
         t_value = int(threshold * sequence_length);
@@ -442,7 +402,24 @@ int main( int argc, char **argv ) {
         // clock_t end = clock();
         // double elapsed = double(end - start)/CLOCKS_PER_SEC;
 
-        if(flag) cout << "start file " << inputFiles[na] << endl;    
+        cout << "start file " << inputFiles[na] << endl;
+        // //////////////////////////////////////////////////////
+        // ifstream testdata;
+        // testdata.open(testingPop[0].c_str());
+        // if(!testdata) { // file couldn't be opened
+        //     cout << "Error: file could not be opened" << endl;
+        // }
+
+        // vector<string> testSeq;
+        // input_sequence.clear();
+        // string seqtest;
+        // while (testdata >> seqtest) testSeq.push_back(seqtest);
+        // testdata.close();
+        ////////////////////////////////
+        //random_device dev;
+        //mt19937 rng(dev());
+        //uniform_int_distribution<mt19937::result_type> dist6(0,3); // distribution in range [1, 6]
+        
 
         // generar dt = t * porcentago (0.50) * iteraciones (generaciones)
         srand(time(0));
@@ -471,16 +448,19 @@ int main( int argc, char **argv ) {
         clock_t start, end; 
         start = clock();
         int terminate_algorithm = 1, terminate_tournements = 1;
-
-        
-        double endPoint = 0.85;
-        int stopAndExit = 0;
-
+        int dtGeneration = 0;
+        double sPoint = 0.70;
+        int dtmod = 500;
+        double dtsum = 0.05;
         while (terminate_algorithm){
-        if (threshold >= 0.85){
-            if (stopAndExit >= 10) terminate_algorithm = 0;
-            else stopAndExit++;
-        } 
+// calcular derivada para generar el cambio de thresolhd encontrando los plateous
+            if (threshold == 0.85) 
+                if(dtGeneration % dtmod == 0)
+                    if (int((threshold * sequence_length) * (sPoint + (dtsum * ((double)dtGeneration / dtmod)))) <= int((threshold * sequence_length))){ 
+                        t_value = int((threshold * sequence_length) * (sPoint + (dtsum * ((double)dtGeneration / dtmod))));
+                        cout << sPoint + (dtsum * ((double)dtGeneration / dtmod)) <<endl;
+                        cout << t_value <<endl;
+                    }
             //Population Finesse calculation
             fitness_calculation();
 
@@ -489,16 +469,6 @@ int main( int argc, char **argv ) {
             sort(population.begin(), population.end(), sortbysec);  // Nlog(N)  on worst case
             if(flag) cout << population[0].second.second << " best    ";//<< endl; 
             
-            cout << population[0].second.second <<endl; //for ploting
-            
-            int bestThisGen = population[0].second.second;
-
-            //blockPerCurve.push_back(population[0].second.second);
-
-            annealing(bestThisGen);
-
-
-
             if (flag == 2) for (int a = 0; a < population.size(); a++){
                 cout <<population[a].second.second << endl;
             }
@@ -559,13 +529,14 @@ int main( int argc, char **argv ) {
             if (elapsed >= t_limit)
                 terminate_algorithm = 0;
 
+            dtGeneration++;
         }
 
         // HERE GOES YOUR GREEDY HEURISTIC
         // When finished with generating a solution, first take the computation time as explained above. Say you store it in variable 'time'.
         // Then write the following to the screen: cout << "value " << <value of your solution> << "\ttime " << time << endl;
 
-        if(flag) cout << "end file " << inputFiles[na] << endl;
+        cout << "end file " << inputFiles[na] << endl;
     }
 
     // calculating the average of the results and computation times and write them to the screen
@@ -577,7 +548,6 @@ int main( int argc, char **argv ) {
     }
     r_mean = r_mean/double(results.size());
     t_mean = t_mean/double(times.size());
-    if(flag) cout << r_mean << "\t" << t_mean << endl;
+    cout << r_mean << "\t" << t_mean << endl;
     
 }
-

@@ -37,20 +37,23 @@
 #include <iomanip>
 #include <chrono>
 
+
 using namespace std;
 
-// Data structures for the problem data
-vector<string> input_sequence;
-int n_of_sequences;
-int sequence_length;
-int alphabet_size = 4;
-map<int,char> mapping;
-map<char,int> rev_mapping;
-double threshold;
-int t_value;
-float determinism = 1.0;
+//cHS
 
-int flag = 0;
+// Data structures for the problem data
+vector<string> cHSinput_sequence;
+int cHSn_of_sequences;
+int cHSsequence_length;
+int cHSalphabet_size = 4;
+map<int,char> cHSmapping;
+map<char,int> cHSrev_mapping;
+double cHSthreshold;
+int cHSt_value;
+float cHSdeterminism = 1.0;
+
+int cHSflag = 0;
 
 // Data Structures for the Greedy
 
@@ -60,10 +63,12 @@ vector<int> accumulated_difference;
 
 
 // vector for keeping all the names of the input files
-vector<string> inputFiles;
+vector<string> cHSinputFiles;
+
+string inputFile;
 
 // dummy parameter as an example for creating command line parameters -> see function read_parameters(...)
-int dummy_integer_parameter = 0;
+int cHSdummy_integer_parameter = 0;
 
 
 inline int stoi(string &s) {
@@ -76,38 +81,37 @@ inline double stof(string &s) {
   return atof(s.c_str());
 }
 
-void read_parameters(int argc, char **argv) {
+// void read_parameters(int argc, char **argv) {
 
-    int iarg = 1;
+//     int iarg = 1;
 
-    while (iarg < argc) {
-        if (strcmp(argv[iarg],"-i")==0) inputFiles.push_back(argv[++iarg]);
-        else if (strcmp(argv[iarg],"-th")==0) threshold = atof(argv[++iarg]);
-        else if (strcmp(argv[iarg],"-d")==0) determinism = stof(argv[++iarg]);
-        else if (strcmp(argv[iarg],"-flag")==0) flag = atoi(argv[++iarg]);
-        else if (strcmp(argv[iarg],"-param1")==0) dummy_integer_parameter = atoi(argv[++iarg]); // example for creating a command line parameter param1 -> integer value is stored in dummy_integer_parameter
-        iarg++;
-    }
-}
+//     while (iarg < argc) {
+//         if (strcmp(argv[iarg],"-th")==0) cHSthreshold = atof(argv[++iarg]);
+//         else if (strcmp(argv[iarg],"-d")==0) cHSdeterminism = stof(argv[++iarg]);
+//         else if (strcmp(argv[iarg],"-cHSflag")==0) cHSflag = atoi(argv[++iarg]);
+//         else if (strcmp(argv[iarg],"-param1")==0) cHSdummy_integer_parameter = atoi(argv[++iarg]); // example for creating a command line parameter param1 -> integer value is stored in cHSdummy_integer_parameter
+//         iarg++;
+//     }
+// }
 
 
-int calculate_best_heuristic_option(int pos, int t_value) {
+int calculate_best_heuristic_option(int pos, int cHSt_value) {
    
     int previous_value = 0;
     //calculado previous-values
-    for(int i=0; i<n_of_sequences;i++)
-        if(accumulated_difference[i]>=t_value) previous_value++;
+    for(int i=0; i<cHSn_of_sequences;i++)
+        if(accumulated_difference[i]>=cHSt_value) previous_value++;
     //calculando after-values
     //calcular el valor con cada una de las 4 opciones
-    int valores[alphabet_size];
+    int valores[cHSalphabet_size];
     int best_option = -1;
     int best_value = 0;
     int add;
-    for(int i=0; i<alphabet_size; i++) {
+    for(int i=0; i<cHSalphabet_size; i++) {
         int actual_value=0;
-        for(int j=0;j<n_of_sequences;j++){
-            if(input_sequence[j][pos]!=mapping[i]) add = 1; else add = 0;
-            if(accumulated_difference[j]+add >= t_value) 
+        for(int j=0;j<cHSn_of_sequences;j++){
+            if(cHSinput_sequence[j][pos]!=cHSmapping[i]) add = 1; else add = 0;
+            if(accumulated_difference[j]+add >= cHSt_value) 
                 actual_value++;
                     
             
@@ -115,7 +119,7 @@ int calculate_best_heuristic_option(int pos, int t_value) {
         valores[i] = actual_value;
         
     }
-    //cout<<"t_value "<<t_value<<endl;
+    //cout<<"cHSt_value "<<cHSt_value<<endl;
     //cout<<"Previous value "<<previous_value<<endl;
     //cout<<valores[0]<<"-"<<valores[1]<<"-"<<valores[2]<<"-"<<valores[3]<<endl;
 
@@ -138,15 +142,15 @@ int calculate_best_heuristic_option(int pos, int t_value) {
 
 void show_accumulated_difference() {
     for(int i=0;i<accumulated_difference.size();i++) {
-        if(flag)cout <<"seq: "<<i<<" "<< accumulated_difference[i] << " done";
-        if(flag)cout<<endl;
+        if(cHSflag)cout <<"seq: "<<i<<" "<< accumulated_difference[i] << " done";
+        if(cHSflag)cout<<endl;
     }
 }
 
 int calculate_solution_quality() {
     int solution_quality = 0;
     for(int i=0;i<accumulated_difference.size();i++) {
-        if(accumulated_difference[i]>=t_value) solution_quality++;
+        if(accumulated_difference[i]>=cHSt_value) solution_quality++;
     }
     return solution_quality;
 
@@ -156,52 +160,53 @@ int calculate_solution_quality() {
 Main function
 **********/
 
-int main( int argc, char **argv ) {
+string createHeuristicSolution( string input, float th, float d /*int argc, char **argv */ ) {
 
     srand (time(NULL));
-    read_parameters(argc,argv);
-    
+    //read_parameters(argc,argv);
+    inputFile = input;
+    cHSthreshold = th;
+    cHSdeterminism = d;    
     // setting the output format for doubles to 2 decimals after the comma
     std::cout << std::setprecision(2) << std::fixed;
 
     // number of input files
-    int n_files = int(inputFiles.size());
+    int n_files = 1;//int(cHSinputFiles.size());
 
     // vectors for storing the result and the computation time obtained by the applications of the greedy heuristic
     vector<double> results(n_files, std::numeric_limits<int>::min());
     vector<double> times(n_files, 0.0);
 
-    // letter to index mapping (note: this only works for instances on alphabet Sigma= {A, C, T, G}
-    mapping[0] = 'A';
-    mapping[1] = 'C';
-    mapping[2] = 'T';
-    mapping[3] = 'G';
-    rev_mapping['A'] = 0;
-    rev_mapping['C'] = 1;
-    rev_mapping['T'] = 2;
-    rev_mapping['G'] = 3;
+    // letter to index cHSmapping (note: this only works for instances on alphabet Sigma= {A, C, T, G}
+    cHSmapping[0] = 'A';
+    cHSmapping[1] = 'C';
+    cHSmapping[2] = 'T';
+    cHSmapping[3] = 'G';
+    cHSrev_mapping['A'] = 0;
+    cHSrev_mapping['C'] = 1;
+    cHSrev_mapping['T'] = 2;
+    cHSrev_mapping['G'] = 3;
 
     // main loop over all input files (problem instances)
-    for (int na = 0; na < n_files; ++na) {
         // opening the corresponding input file and reading the problem data
         ifstream indata;
-        indata.open(inputFiles[na].c_str());
+        indata.open(inputFile.c_str());
         if(!indata) { // file couldn't be opened
             cout << "Error: file could not be opened" << endl;
         }
 
-        input_sequence.clear();
+        cHSinput_sequence.clear();
         string seq;
-        while (indata >> seq) input_sequence.push_back(seq);
-        n_of_sequences = input_sequence.size();
-        sequence_length = input_sequence[0].size();
+        while (indata >> seq) cHSinput_sequence.push_back(seq);
+        cHSn_of_sequences = cHSinput_sequence.size();
+        cHSsequence_length = cHSinput_sequence[0].size();
         indata.close();
 
-        // minimum required Hamming distance
-        t_value = int(threshold * sequence_length);
+
+        cHSt_value = int(cHSthreshold * cHSsequence_length);
         //estructura para el greedy
-        if(flag) cout << t_value << endl;
-        accumulated_difference= vector<int>(n_of_sequences,0);
+        if(cHSflag) cout << cHSt_value << endl;
+        accumulated_difference= vector<int>(cHSn_of_sequences,0);
 
         // the computation time starts now
         clock_t start = clock();
@@ -210,23 +215,23 @@ int main( int argc, char **argv ) {
         // clock_t end = clock();
         // double elapsed = double(end - start)/CLOCKS_PER_SEC;
 
-        if(flag) cout << "start file " << inputFiles[na] << endl;
+        if(cHSflag) cout << "start file " << inputFile << endl;
         //Calcular números de soporte a greedy
        
-        int n_of_X[sequence_length][4]={0};        
+        int n_of_X[cHSsequence_length][4]={0};        
 
-        for (int i=0;i<sequence_length;i++)
-            for(int j=0;j<n_of_sequences;j++){
-                n_of_X[i][rev_mapping[input_sequence[j][i]]]++;
+        for (int i=0;i<cHSsequence_length;i++)
+            for(int j=0;j<cHSn_of_sequences;j++){
+                n_of_X[i][cHSrev_mapping[cHSinput_sequence[j][i]]]++;
                 
             }
         
         //Identificando el menor en 0 por caracter   
         // Nota: aquí se toma el primer menor, se puede mejorar para que tome de todos los posibles menores ( implementar tiebreak) 
-        int menor_n_of_X[sequence_length]={0};
-        int numero_menor_n_of_X[sequence_length]={0};
+        int menor_n_of_X[cHSsequence_length]={0};
+        int numero_menor_n_of_X[cHSsequence_length]={0};
 
-        for(int i=0; i<sequence_length;i++){
+        for(int i=0; i<cHSsequence_length;i++){
             int lower = 10000;
             for(int j=0;j<4;j++){
                 if( n_of_X[i][j] < lower ) {
@@ -241,15 +246,15 @@ int main( int argc, char **argv ) {
         //Interpretando vector de maxima diferencia
         int lower =10000;
         int lower_pos = -1;
-        for(int i=0; i<sequence_length;i++){
-            if(flag) cout<<mapping[menor_n_of_X[i]];
+        for(int i=0; i<cHSsequence_length;i++){
+            if(cHSflag) cout<<cHSmapping[menor_n_of_X[i]];
             if (lower > numero_menor_n_of_X[i]) {
                 lower = numero_menor_n_of_X[i];
                 lower_pos = i;
             }
         }
-        if(flag) cout<<endl;
-        if(flag) cout<<"Posición de inicio de construcción: "<<lower_pos<<endl;
+        if(cHSflag) cout<<endl;
+        if(cHSflag) cout<<"Posición de inicio de construcción: "<<lower_pos<<endl;
 
 
         // HERE GOES YOUR GREEDY HEURISTIC
@@ -260,49 +265,49 @@ int main( int argc, char **argv ) {
         // comencemos a construir la solución
         
         string solution;
-        solution.resize(sequence_length);
+        solution.resize(cHSsequence_length);
         int pos = lower_pos;
         int i = 0;
         int number_of_sequences_over_treshold = 0;
 
-        if(rand() % 100 < determinism * 100) {
+        if(rand() % 100 < cHSdeterminism * 100) {
         
-            solution[pos] = mapping[menor_n_of_X[pos]];
+            solution[pos] = cHSmapping[menor_n_of_X[pos]];
             //cout<<solution<<endl;
             //update the vector of accumulated difference
-            for(int j=0;j<n_of_sequences;j++){
-                if(input_sequence[j][pos] != solution[pos]){
+            for(int j=0;j<cHSn_of_sequences;j++){
+                if(cHSinput_sequence[j][pos] != solution[pos]){
                     accumulated_difference[j]++;
                 }
             }
             //show_accumulated_difference();
-            //calculate_best_heuristic_option(pos + 1,t_value);
+            //calculate_best_heuristic_option(pos + 1,cHSt_value);
         }
         else{
-            solution[pos] = mapping[rand()%4];
+            solution[pos] = cHSmapping[rand()%4];
         }
 
         i++;
         pos++;
-        pos=pos%sequence_length; 
+        pos=pos%cHSsequence_length; 
         int h_option;
-        while(i<sequence_length){
+        while(i<cHSsequence_length){
             
-            //verify whats is better the lower recurrent or other in terms of number of sequences over threshold
+            //verify whats is better the lower recurrent or other in terms of number of sequences over cHSthreshold
             
-            if(rand() % 100 < determinism * 100) {
-                h_option=calculate_best_heuristic_option(pos,t_value);
-                if(h_option==-1) solution[pos] += mapping[menor_n_of_X[pos]];
+            if(rand() % 100 < cHSdeterminism * 100) {
+                h_option=calculate_best_heuristic_option(pos,cHSt_value);
+                if(h_option==-1) solution[pos] += cHSmapping[menor_n_of_X[pos]];
                     else{
-                        solution[pos] += mapping[h_option];
+                        solution[pos] += cHSmapping[h_option];
                     }
                 //update the vector of accumulated difference
             }
-            else{solution[pos]=mapping[rand()%4];}
+            else{solution[pos]=cHSmapping[rand()%4];}
 
             // update the vector of accumulated difference
-            for(int j=0;j<n_of_sequences;j++){
-                if(input_sequence[j][pos] != solution[pos]){
+            for(int j=0;j<cHSn_of_sequences;j++){
+                if(cHSinput_sequence[j][pos] != solution[pos]){
                     accumulated_difference[j]++;
                 }
             }
@@ -310,19 +315,15 @@ int main( int argc, char **argv ) {
             
             i++;
             pos++;
-            pos=pos%sequence_length; 
+            pos=pos%cHSsequence_length; 
             
         }
-        cout<<solution<<endl;
-        if (flag) cout<<"calidad: "<<calculate_solution_quality()<<endl;
+        if (cHSflag) cout<<solution<<endl;
+        if (cHSflag) cout<<"calidad: "<<calculate_solution_quality()<<endl;        
 
+        if(cHSflag) cout << "end file " << inputFile << endl;
+        return solution;
 
-
-
-        
-
-        if(flag) cout << "end file " << inputFiles[na] << endl;
-    }
 
     // calculating the average of the results and computation times and write them to the screen
 
@@ -334,9 +335,8 @@ int main( int argc, char **argv ) {
     }
     r_mean = r_mean/double(results.size());
     t_mean = t_mean/double(times.size());
-    if(flag) cout << r_mean << "\t" << t_mean << endl;
+    if(cHSflag) cout << r_mean << "\t" << t_mean << endl;
 
-    
     
 }
 
