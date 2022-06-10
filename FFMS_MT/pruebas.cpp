@@ -61,6 +61,7 @@ int flag = 0;
 //Genetic Algorithm Hyper-Parameters
 int n_population = 50; //Cambiar por un limite de tiempo
 int population_Creation = 0; // 0 creates the population randomly, 1 creates the population with Prof. Pinacho's Heuristics
+int p_pop_heuristic = 0;
 int n_tournement = 1;
 int k_contestants = 5; 
 int crossover_type = 0; // 0 uniform; 1 single point crossover; 2 double point crossover.
@@ -112,6 +113,7 @@ void read_parameters(int argc, char **argv) {
         else if (strcmp(argv[iarg],"-th")==0) threshold = atof(argv[++iarg]);
         else if (strcmp(argv[iarg],"-np")==0) n_population = atoi(argv[++iarg]);
         else if (strcmp(argv[iarg],"-pc")==0) population_Creation = atoi(argv[++iarg]);
+        else if (strcmp(argv[iarg],"-pph")==0) p_pop_heuristic = atof(argv[++iarg]);
         else if (strcmp(argv[iarg],"-dt")==0) determinism = atof(argv[++iarg]);
         else if (strcmp(argv[iarg],"-ct")==0) crossover_type = atoi(argv[++iarg]);
         else if (strcmp(argv[iarg],"-png")==0) p_newGen = atof(argv[++iarg]);
@@ -137,7 +139,7 @@ void getSample(vector<pair<int,pair<string,int>>> pop, vector<pair<int,pair<stri
 // Hamming Distance
 int hammingDist(string str1, string str2)
 {
-    int i = 0, count = 0;
+    int count = 0;
     for( int it = 0; it < sequence_length ; it++){
         if (str1.at(it) != str2.at(it)) count++;
     }
@@ -275,9 +277,22 @@ void mutation(){
     gen_elites.clear();
 }
 
+int finalFitnessCalculation(string in){
+    int out = 0;
+    int missmatchs = 0;
+    for (int j = 0; j < n_of_sequences; j++){
+        missmatchs = hammingDist(in, input_sequence[j]);
+        if (missmatchs >= t_value) out += 1;
+    }
+    return out;
+}
+
 /**********
 Main function
 **********/
+
+        int gen = 0;
+
 
 int main( int argc, char **argv ) {
 
@@ -310,7 +325,7 @@ int main( int argc, char **argv ) {
         ifstream indata;
         indata.open(inputFiles[na].c_str());
         if(!indata) { // file couldn't be opened
-            cout << "Error: file could not be opened" << endl;
+            if (flag) cout << "Error: file could not be opened" << endl;
         }
 
         input_sequence.clear();
@@ -320,8 +335,8 @@ int main( int argc, char **argv ) {
         sequence_length = input_sequence[0].size();
         indata.close();
 
-        cout << "n of sequences " << n_of_sequences << endl;
-        cout << "sequence lenght " << sequence_length << endl;
+        if (flag) cout << "n of sequences " << n_of_sequences << endl;
+        if (flag) cout << "sequence lenght " << sequence_length << endl;
 
         // minimum required Hamming distance
         t_value = int(threshold * sequence_length);
@@ -332,15 +347,16 @@ int main( int argc, char **argv ) {
         // clock_t end = clock();
         // double elapsed = double(end - start)/CLOCKS_PER_SEC;
 
-        cout << "start file " << inputFiles[na] << endl;
+        if (flag) cout << "start file " << inputFiles[na] << endl;
 
         // generar dt = t * porcentago (0.50) * iteraciones (generaciones)
         srand(time(0));
         
         //Population Creation
+        int heuristic_population  = 0;
         switch (population_Creation)
         {
-        case 1:
+        case 0:
             for (int i = 0; i < n_population; i++)
             {
                 string str = "";
@@ -353,14 +369,34 @@ int main( int argc, char **argv ) {
                 population.push_back(make_pair(i,make_pair(str,0)));
             }
             break;
-        case 2:
+        case 1:
             for (int i = 0; i < n_population; i++)
             {
                 population.push_back(make_pair(i,make_pair(createHeuristicSolution(inputFiles[na], threshold, determinism),0)));
             }
+        case 2:
+            heuristic_population = n_population * p_pop_heuristic; 
+            for (int i = 0; i < heuristic_population; i++)
+            {
+                population.push_back(make_pair(i,make_pair(createHeuristicSolution(inputFiles[na], threshold, determinism),0)));
+            }
+            for (int i = 0; i < n_population - heuristic_population; i++)
+            {
+                string str = "";
+                for (int j = 0; j < sequence_length; j++)
+                {
+                    char ch = mapping[rand() % 4];
+                    str.push_back(ch);
+                }
+                //cout << str <<endl<<endl; 
+                population.push_back(make_pair(i,make_pair(str,0)));
+            }
+
+            break;
         default:
             break;
         }
+
                 
         nng_value = population.size() * p_newGen;
         clock_t start, end; 
@@ -419,8 +455,11 @@ int main( int argc, char **argv ) {
                 terminate_algorithm = 0;
 
         }
-        cout << "end file " << inputFiles[na] << endl;
+        if (flag) cout << "end file " << inputFiles[na] << endl;
     }
+
+    sort(population.begin(), population.end(), sortbysec);
+    cout << finalFitnessCalculation(population[0].second.first)<<endl;
 
     // calculating the average of the results and computation times and write them to the screen
     double r_mean = 0.0;
@@ -431,7 +470,7 @@ int main( int argc, char **argv ) {
     }
     r_mean = r_mean/double(results.size());
     t_mean = t_mean/double(times.size());
-    cout << r_mean << "\t" << t_mean << endl;
+    if (flag) cout << r_mean << "\t" << t_mean << endl;
     
 }
 
