@@ -47,7 +47,7 @@ sbatch 1> $tmpfile <<EOF
 ##SBATCH --time=0-5:00:00
 ##SBATCH --ntasks=1
 #SBATCH --partition=main
-#SBATCH --mem 10G # Memory request of 7 GB
+#SBATCH --mem 16G # Memory request of 7 GB
 #SBATCH -n1 # one core
 
 

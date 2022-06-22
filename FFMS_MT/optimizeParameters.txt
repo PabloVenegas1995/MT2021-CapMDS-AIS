@@ -1,0 +1,33 @@
+th_0.75
+
+-np 100 -pc 2 -pph 0.25 -dt 0.93 -ct 2 -png 0.28 -rp 2 -pe 0.6 -rrt 1 -mr 0.01
+-np 80 -pc 2 -pph 0.25 -dt 0.93 -ct 2 -png 0.23 -rp 2 -pe 0.6 -rrt 1 -mr 0.01
+-np 100 -pc 2 -pph 0.25 -dt 0.99 -ct 2 -png 0.39 -rp 2 -pe 0.6 -rrt 1 -mr 0.02
+-np 100 -pc 2 -pph 0.25 -dt 0.85 -ct 2 -png 0.32 -rp 2 -pe 0.55 -rrt 1 -mr 0
+-np 80 -pc 2 -pph 0.25 -dt 0.97 -ct 2 -png 0.2 -rp 2 -pe 0.57 -rrt 1 -mr 0.02
+
+
+th_0.8
+
+-np 10 -pc 1 -dt 1 -ct 0 -png 0.49 -rp 1 -mr 0.05
+-np 10 -pc 1 -dt 0.99 -ct 0 -png 0.41 -rp 1 -mr 0.16
+-np 10 -pc 1 -dt 0.98 -ct 0 -png 0.53 -rp 1 -mr 0.01
+-np 10 -pc 1 -dt 1 -ct 0 -png 0.52 -rp 1 -mr 0.03
+-np 10 -pc 1 -dt 1 -ct 0 -png 0.52 -rp 1 -mr 0.08
+
+th_85
+
+-np 10 -pc 1 -dt 0.87 -ct 2 -png 0.53 -rp 2 -pe 0.68 -rrt 0 -mr 0.07
+-np 10 -pc 1 -dt 0.94 -ct 2 -png 0.51 -rp 2 -pe 0.64 -rrt 0 -mr 0.1
+-np 80 -pc 0 -ct 2 -png 0.46 -rp 2 -pe 0.55 -rrt 1 -mr 0.01
+-np 50 -pc 0 -ct 2 -png 0.35 -rp 2 -pe 0.44 -rrt 1 -mr 0.01
+-np 100 -pc 0 -ct 2 -png 0.41 -rp 2 -pe 0.51 -rrt 1 -mr 0.01
+
+Derivative
+
+-np 500 -pc 2 -pph 0.75 -dt 0.64 -ntc 7 -ct 0 -png 0.6 -rp 0 -mr 0.64
+-np 500 -pc 2 -pph 0.75 -dt 0.67 -ntc 9 -ct 0 -png 0.54 -rp 0 -mr 0.37
+-np 500 -pc 2 -pph 0.75 -dt 0.64 -ntc 7 -ct 0 -png 0.65 -rp 0 -mr 0.63
+-np 500 -pc 2 -pph 0.75 -dt 0.67 -ntc 9 -ct 0 -png 0.57 -rp 0 -mr 0.3
+-np 500 -pc 2 -pph 0.75 -dt 0.41 -ntc 9 -ct 0 -png 0.55 -rp 0 -mr 0.42
+

@@ -277,16 +277,6 @@ void mutation(){
     gen_elites.clear();
 }
 
-int finalFitnessCalculation(string in){
-    int out = 0;
-    int missmatchs = 0;
-    for (int j = 0; j < n_of_sequences; j++){
-        missmatchs = hammingDist(in, input_sequence[j]);
-        if (missmatchs >= t_value) out += 1;
-    }
-    return out;
-}
-
 /**********
 Main function
 **********/
@@ -371,15 +361,11 @@ int main( int argc, char **argv ) {
             break;
         case 1:
             for (int i = 0; i < n_population; i++)
-            {
                 population.push_back(make_pair(i,make_pair(createHeuristicSolution(inputFiles[na], threshold, determinism),0)));
-            }
         case 2:
             heuristic_population = n_population * p_pop_heuristic; 
             for (int i = 0; i < heuristic_population; i++)
-            {
                 population.push_back(make_pair(i,make_pair(createHeuristicSolution(inputFiles[na], threshold, determinism),0)));
-            }
             for (int i = 0; i < n_population - heuristic_population; i++)
             {
                 string str = "";
@@ -458,8 +444,9 @@ int main( int argc, char **argv ) {
         if (flag) cout << "end file " << inputFiles[na] << endl;
     }
 
+    fitness_calculation();
     sort(population.begin(), population.end(), sortbysec);
-    cout << finalFitnessCalculation(population[0].second.first)<<endl;
+    cout << population[0].second.second <<endl;
 
     // calculating the average of the results and computation times and write them to the screen
     double r_mean = 0.0;
