@@ -96,6 +96,7 @@ int nAscending = 0;
 int nDescending = 0;
 int steady = 0;
 int nToChange = 3; // how many steadys are needed to change the treshold;
+double steps = 1;
 int prevVal = INT_MIN;
 enum Direction { Ascending, Descending}; 
 
@@ -132,6 +133,7 @@ void read_parameters(int argc, char **argv) {
         else if (strcmp(argv[iarg],"-pph")==0) p_pop_heuristic = atof(argv[++iarg]);
         else if (strcmp(argv[iarg],"-dt")==0) determinism = atof(argv[++iarg]);
         else if (strcmp(argv[iarg],"-ntc")==0) nToChange = atoi(argv[++iarg]);
+        else if (strcmp(argv[iarg],"-stp")==0) steps = atof(argv[++iarg]);
         else if (strcmp(argv[iarg],"-ct")==0) crossover_type = atoi(argv[++iarg]);
         else if (strcmp(argv[iarg],"-mr")==0) mutation_rate = atoi(argv[++iarg]);
         else if (strcmp(argv[iarg],"-png")==0) p_newGen = atof(argv[++iarg]);
@@ -318,18 +320,17 @@ void annealing(int best){
     if (curVal == prevVal) steady++;
     if ( steady + nToChange < nAscending + nDescending  ||  nAscending + nDescending + nToChange < steady) change = true;
 
-    if(flag)cout << nAscending <<endl << nDescending << endl<<steady <<endl <<endl;
+    //if(flag)cout << nAscending <<endl << nDescending << endl<<steady <<endl <<endl;
 
 
     prevVal = curVal;
 
     if (change){
-        threshold+= 0.03;
+        threshold+= (15.0/steps)/100.0;
         steady = 0;
         nAscending = 0;
         nDescending = 0;
         t_value = int(threshold * sequence_length);
-        bests_per_threshold.push_back(best_so_far);
         best_so_far = make_tuple(0.0,-1,0.0, "");
         if(flag)cout << threshold <<endl;
     }
@@ -450,28 +451,26 @@ int main( int argc, char **argv ) {
         double elapsed = double(end - start)/CLOCKS_PER_SEC;                
         
         double endPoint = 0.85;
-        int stopAndExit = 0;
 
         while (terminate_algorithm){
-        if (threshold >= 0.85){
-            if (stopAndExit >= 10) terminate_algorithm = 0;
-            else stopAndExit++;
-        } 
             //Population Finesse calculation
             fitness_calculation();
 
             if(flag > 1)for (int i = 0; i < population.size(); i++) cout << "[" << population[i].second.first <<"] " << population[i].second.second << endl;
             sort(population.begin(), population.end(), sortbysec);  // Nlog(N)  on worst case
-            if(flag) cout << population[0].second.second << " best    ";//<< endl; 
+            //if(flag) cout << population[0].second.second << " best    ";//<< endl; 
             
 
             if (population[0].second.second > get<1>(best_so_far)){  
                 end = clock();
                 elapsed = double(end - start)/CLOCKS_PER_SEC;
+                //cout << threshold << '\t' << population[0].second.second << '\t' << elapsed << endl;
                 best_so_far = make_tuple(threshold, population[0].second.second, elapsed, population[0].second.first);
+                bests_per_threshold.push_back(best_so_far);
             }
-            
-            annealing(population[0].second.second);
+
+            if (threshold < 0.85)
+                annealing(population[0].second.second);
             
             if (flag > 1) for (int a = 0; a < population.size(); a++){
                 cout <<population[a].second.second << endl;
@@ -515,7 +514,7 @@ int main( int argc, char **argv ) {
             //mutacion sobre nP menos elite
             end = clock();
             elapsed = double(end - start)/CLOCKS_PER_SEC;
-            if(flag)cout << elapsed << " elapsed"<<endl;
+            //if(flag)cout << elapsed << " elapsed"<<endl;
             if (elapsed >= t_limit)
                 terminate_algorithm = 0;
 
@@ -528,10 +527,11 @@ int main( int argc, char **argv ) {
         if(flag) cout << "end file " << inputFiles[na] << endl;
     }
 
-    if (flag){ for (int k = 0; k < bests_per_threshold.size(); k++)
-         cout << get<0>(bests_per_threshold[k]) << " " << get<1>(bests_per_threshold[k]) << " " << get<2>(bests_per_threshold[k]) << " " << get<3>(bests_per_threshold[k]) << " " << endl;
-    }
-    cout << get<1>(best_so_far) * -1 <<endl;
+   // if (flag){ 
+    for (int k = 0; k < bests_per_threshold.size(); k++)
+        cout << /* get<0>(bests_per_threshold[k]) << '\t' << */ get<1>(bests_per_threshold[k]) << '\t' << get<2>(bests_per_threshold[k]) << '\t' << endl;// << get<3>(bests_per_threshold[k]) << endl;
+    //}
+    //cout << get<1>(best_so_far) * -1 <<endl;
     
     
     // calculating the average of the results and computation times and write them to the screen

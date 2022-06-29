@@ -28,7 +28,7 @@ error() {
 
 tmpfile=$(mktemp)
 EXE=../bin/DERIVATIVE
-FIXED_PARAMS="-tlim 100.0 -flag 0 "
+FIXED_PARAMS="-tlim 90.0 -flag 0 "
 CANDIDATE=$1
 INSTANCEID=$2
 SEED=$3

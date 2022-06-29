@@ -39,6 +39,7 @@ population_Creation     "-pc "                  c       (0, 1, 2)
 p_pop_heuristic         "-pph "                 o       (0.25, 0.50, 0.75)              | population_Creation == "2" 
 determinism             "-dt "                  r       (0.1, 1)                        | population_Creation %in% c(1, 2)
 nToChange               "-ntc "                 i       (1, 10)
+steps                   "-stp "                 i       (1,15)
 crossover_type          "-ct "                  o       (0, 1, 2)
 p_newGen                "-png "                 r       (0.1, 1)
 r_population            "-rp "                  c       (0, 1, 2) 

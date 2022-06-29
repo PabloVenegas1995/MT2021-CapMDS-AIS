@@ -1,0 +1,4 @@
+bin/GENETIC -i instances/200-600-001.txt -tlim 90.0 -th 0.75 -np 80 -pc 1 -dt 0.96 -ct 0 -png 0.45 -rp 2 -pe 0.53 -rrt 0 -mr 0.03
+198	0.01
+200	0.02
+200	0.02
