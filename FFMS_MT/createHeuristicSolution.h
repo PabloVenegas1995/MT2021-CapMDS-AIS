@@ -81,20 +81,6 @@ inline double stof(string &s) {
   return atof(s.c_str());
 }
 
-// void read_parameters(int argc, char **argv) {
-
-//     int iarg = 1;
-
-//     while (iarg < argc) {
-//         if (strcmp(argv[iarg],"-th")==0) cHSthreshold = atof(argv[++iarg]);
-//         else if (strcmp(argv[iarg],"-d")==0) cHSdeterminism = stof(argv[++iarg]);
-//         else if (strcmp(argv[iarg],"-cHSflag")==0) cHSflag = atoi(argv[++iarg]);
-//         else if (strcmp(argv[iarg],"-param1")==0) cHSdummy_integer_parameter = atoi(argv[++iarg]); // example for creating a command line parameter param1 -> integer value is stored in cHSdummy_integer_parameter
-//         iarg++;
-//     }
-// }
-
-
 int calculate_best_heuristic_option(int pos, int cHSt_value) {
    
     int previous_value = 0;
@@ -129,15 +115,12 @@ int calculate_best_heuristic_option(int pos, int cHSt_value) {
         else if(valores[0]<valores[1]) firstS = 1; else firstS = rand()%2;
     if(valores[2]>valores[3]) secondS = 2;
         else if(valores[2]<valores[3]) secondS = 3; else secondS = rand()%2+2;
-    
     if(valores[firstS]>valores[secondS]) best_option = firstS;
         else if(valores[firstS]<valores[secondS]) best_option = secondS;
             else  if(rand()%2) best_option = firstS;
                 else best_option = secondS;
 
     if(previous_value < valores[best_option]) return best_option; else return -1;
-
-
 }
 
 void show_accumulated_difference() {
@@ -160,10 +143,9 @@ int calculate_solution_quality() {
 Main function
 **********/
 
-string createHeuristicSolution( string input, float th, float d /*int argc, char **argv */ ) {
+string createHeuristicSolution( string input, float th, float d) {
 
     srand (time(NULL));
-    //read_parameters(argc,argv);
     inputFile = input;
     cHSthreshold = th;
     cHSdeterminism = d;    

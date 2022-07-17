@@ -84,3 +84,28 @@ Derivativa final {
 -np 1500 -pc 0 -ntc 5 -stp 7 -ct 0 -png 0.56 -rp 1 -mr 0.82
 
 }
+
+
+bajar cantidad de parametros
+aumentar np derivative y aumentar n experimentos 10000
+barrakuda
+
+n_population            "-np "                  o       (1500, 3000, 6000, 7500, 10000)
+population_Creation     "-pc "                  c       (0, 1, 2)
+p_pop_heuristic         "-pph "                 o       (0.25, 0.50, 0.75)              | population_Creation == "2" 
+determinism             "-dt "                  r       (0.1, 1)                        | population_Creation %in% c(1, 2)
+nToChange               "-ntc "                 i       (1, 10)
+steps                   "-stp "                 i       (1,15)
+crossover_type          "-ct "                  o       (0, 1, 2)
+p_newGen                "-png "                 r       (0.1, 1)
+r_population            "-rp "                  c       (0, 1, 2) 
+p_elite                 "-pe "                  r       (0.1, 1)                        | r_population == "2"
+random_replace_type     "-rrt "                 c       (0, 1)                          | r_population == "2"
+mutation_rate           "-mr "                  r       (0.0, 1)
+
+
+1334  -np 10000 -pc 1 -dt 0.5 -ntc 10 -stp 13 -ct 0 -png 0.96 -rp 1 -mr 0.12
+1331  -np 10000 -pc 1 -dt 0.5 -ntc 10 -stp 13 -ct 0 -png 0.94 -rp 1 -mr 0.21
+1285  -np 10000 -pc 1 -dt 0.51 -ntc 10 -stp 13 -ct 0 -png 0.98 -rp 1 -mr 0.26
+1159  -np 10000 -pc 1 -dt 0.52 -ntc 10 -stp 13 -ct 0 -png 0.96 -rp 1 -mr 0.13
+1287  -np 10000 -pc 1 -dt 0.69 -ntc 10 -stp 13 -ct 0 -png 0.96 -rp 1 -mr 0.19

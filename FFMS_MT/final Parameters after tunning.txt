@@ -1,0 +1,81 @@
+#final Parameters after tunning
+
+th_0.75 90 segundos{
+
+    -np 80 -pc 1 -dt 0.96 -ct 0 -png 0.45 -rp 2 -pe 0.53 -rrt 0 -mr 0.03
+    -np 30 -pc 1 -dt 0.87 -ct 0 -png 0.61 -rp 2 -pe 0.59 -rrt 0 -mr 0
+    -np 500 -pc 0 -ct 0 -png 0.16 -rp 2 -pe 0.46 -rrt 1 -mr 0
+    -np 50 -pc 1 -dt 0.85 -ct 1 -png 0.56 -rp 2 -pe 0.66 -rrt 0 -mr 0
+    -np 500 -pc 0 -ct 0 -png 0.12 -rp 2 -pe 0.5 -rrt 1 -mr 0.01
+}
+
+th_0.8 90 segundos{
+
+    -np 80 -pc 1 -dt 0.9 -ct 0 -png 0.46 -rp 2 -pe 0.66 -rrt 0 -mr 0.01
+    -np 80 -pc 1 -dt 0.79 -ct 0 -png 0.57 -rp 2 -pe 0.57 -rrt 0 -mr 0
+    -np 80 -pc 1 -dt 0.74 -ct 0 -png 0.58 -rp 2 -pe 0.69 -rrt 0 -mr 0
+    -np 80 -pc 1 -dt 0.93 -ct 0 -png 0.39 -rp 2 -pe 0.57 -rrt 0 -mr 0
+    -np 80 -pc 1 -dt 0.88 -ct 0 -png 0.49 -rp 2 -pe 0.69 -rrt 0 -mr 0
+}
+
+th_85 90 segundos{
+
+    -np 50 -pc 2 -pph 0.75 -dt 0.78 -ct 0 -png 0.77 -rp 2 -pe 0.92 -rrt 0 -mr 0.01
+    -np 100 -pc 2 -pph 0.50 -dt 0.82 -ct 0 -png 0.54 -rp 2 -pe 0.81 -rrt 1 -mr 0.02
+    -np 50 -pc 2 -pph 0.50 -dt 0.94 -ct 0 -png 0.63 -rp 2 -pe 0.89 -rrt 1 -mr 0.02
+    -np 80 -pc 0 -ct 0 -png 0.45 -rp 2 -pe 0.63 -rrt 1 -mr 0.02
+    -np 50 -pc 1 -dt 0.97 -ct 0 -png 0.65 -rp 2 -pe 0.98 -rrt 1 -mr 0.01
+
+Derivativa final {
+
+    -np 1500 -pc 0 -ntc 8 -stp 8 -ct 0 -png 0.3 -rp 1 -mr 0.79
+    -np 1500 -pc 0 -ntc 3 -stp 6 -ct 0 -png 0.58 -rp 1 -mr 0.54
+    -np 1500 -pc 0 -ntc 6 -stp 7 -ct 0 -png 0.34 -rp 1 -mr 0.69
+    -np 1500 -pc 0 -ntc 7 -stp 10 -ct 0 -png 0.29 -rp 1 -mr 0.92
+    -np 1500 -pc 0 -ntc 5 -stp 7 -ct 0 -png 0.56 -rp 1 -mr 0.82
+
+}
+
+-np: Population size
+-pc: Type of population creation | 0 Completely random; 1 Completely Prof. Pinacho's Heuristic; 2 mix between random and Prof. Pinacho's Heuristic 
+-pph (only on -pc = 2): Percentage of pupulation created by Prof. Pinacho's Heuristic, rest created randomly | (0.25, 0.50, 0,75)
+-dt (only on -pc = 1 or -pc = 2): Determinism of Prof. Pinacho's Heuristic 
+-ntc (only on Derivative program): Number of generations without quality of solutions change needed to change the threshold | int between (1 - 10)
+-stp (only on Derivative program): Number of steps between th_0.70 to th_85 | int between (1 - 15)
+-ct: Crossover type | 0 uniform crossover; 1 single point crossover; 2 double point crossover
+-png: Percentage of new population considered for next generation. |
+-rp
+-pe
+-rrt
+-mr    
+
+Experiments Results
+
++---------------------------+---------------------------+-------------------+-----------+
+| Configuration + Threshold | Mean Quality of Solutions | Standar Deviation | Mean time |
++---------------------------+---------------------------+-------------------+-----------+
+|    100, 300, t = 0.75m    |           100.0           |        0.0        |    0.02   |
+|    100, 300, t = 0.80m    |            68.1           |        2.59       |   48.04   |
+|    100, 300, t = 0.85m    |            18.7           |        1.55       |   71.75   |
+|    100, 300, Derivativ    |            16.2           |        1.47       |    8.82   |
+|    100, 600, t = 0.75m    |           100.0           |        0.0        |    0.0    |
+|    100, 600, t = 0.80m    |            60.2           |        2.89       |   47.73   |
+|    100, 600, t = 0.85m    |            0.2            |        0.4        |    4.3    |
+|    100, 600, Derivativ    |            10.5           |        1.28       |   22.63   |
+|    100, 800, t = 0.75m    |           100.0           |        0.0        |    0.01   |
+|    100, 800, t = 0.80m    |            54.3           |        2.53       |   62.85   |
+|    100, 800, t = 0.85m    |            0.0            |        0.0        |    0.0    |
+|    100, 800, Derivativ    |            7.4            |        1.28       |   28.76   |
+|    200, 300, t = 0.75m    |           199.5           |        0.5        |   36.68   |
+|    200, 300, t = 0.80m    |            89.8           |        5.08       |   37.06   |
+|    200, 300, t = 0.85m    |            20.8           |        1.66       |   62.73   |
+|    200, 300, Derivativ    |            15.1           |        1.7        |   16.49   |
+|    200, 600, t = 0.75m    |           200.0           |        0.0        |    1.56   |
+|    200, 600, t = 0.80m    |            63.7           |        3.66       |   70.07   |
+|    200, 600, t = 0.85m    |            0.2            |        0.4        |    8.11   |
+|    200, 600, Derivativ    |            9.3            |        1.42       |    39.5   |
+|    200, 800, t = 0.75m    |           200.0           |        0.0        |    1.66   |
+|    200, 800, t = 0.80m    |            53.0           |        3.49       |   61.75   |
+|    200, 800, t = 0.85m    |            0.0            |        0.0        |    0.01   |
+|    200, 800, Derivativ    |            6.4            |        1.2        |   46.79   |
++---------------------------+---------------------------+-------------------+-----------+

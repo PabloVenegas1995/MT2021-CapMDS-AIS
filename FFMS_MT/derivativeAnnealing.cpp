@@ -529,7 +529,7 @@ int main( int argc, char **argv ) {
 
    // if (flag){ 
     for (int k = 0; k < bests_per_threshold.size(); k++)
-        cout << /* get<0>(bests_per_threshold[k]) << '\t' << */ get<1>(bests_per_threshold[k]) << '\t' << get<2>(bests_per_threshold[k]) << '\t' << endl;// << get<3>(bests_per_threshold[k]) << endl;
+        cout <<  get<0>(bests_per_threshold[k]) << '\t' << get<1>(bests_per_threshold[k]) << '\t' << get<2>(bests_per_threshold[k]) << '\t' << endl;// << get<3>(bests_per_threshold[k]) << endl;
     //}
     //cout << get<1>(best_so_far) * -1 <<endl;
     
