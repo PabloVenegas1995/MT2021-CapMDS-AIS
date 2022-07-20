@@ -1,0 +1,25 @@
+#!/bin/bash
+#
+#SBATCH -J FFMSP # A single job name for the array
+#SBATCH -p main # Partition
+#SBATCH -n 1 # one core
+#--SBATCH-- -N 1 # on one node
+#--SBATCH-- -t 0-0:17:00 # Running time of 17 mins
+#--SBATCH-- --ntasks 4
+#SBATCH --mem 16G # Memory request of 7 GB
+#SBATCH --array=0-0
+#SBATCH -o  bin_outFile_%A_CONF_%a.out 
+#SBATCH -e  bin_errFile_%A_CONF_%a.err
+
+#Declaring configurations
+declare -a CONF_BIN=(
+                                 " -tlim 90.0 -th 0.80 -np 500 -pc 0 -pst 1 -ct 0 -png 0.12 -rp 1 -pe 0.36 -mr 0.36 -cpl_t 3 -bks 0 -bkn 9"  
+
+        )
+##Binary problems
+
+#for i in {1..60}
+#do
+echo  bin/BARRAKUDA -i ${1}  ${CONF_BIN[$SLURM_ARRAY_TASK_ID]} >"resultados/${2}_${SLURM_ARRAY_TASK_ID}"
+bin/BARRAKUDA -i ${1}  ${CONF_BIN[$SLURM_ARRAY_TASK_ID]} >>"resultados/${2}_${SLURM_ARRAY_TASK_ID}"
+#done

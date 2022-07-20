@@ -1,0 +1,9 @@
+bin/BARRAKUDA -i instances/200-600-007.txt -tlim 90.0 -th 0.80 -np 500 -pc 0 -pst 1 -ct 0 -png 0.12 -rp 1 -pe 0.36 -mr 0.36 -cpl_t 3 -bks 0 -bkn 9
+5	0.08
+43	3.26
+46	6.45
+50	9.64
+53	19.22
+58	35.18
+61	44.76
+61	44.76

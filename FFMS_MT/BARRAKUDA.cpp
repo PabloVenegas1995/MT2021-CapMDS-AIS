@@ -626,7 +626,8 @@ int main( int argc, char **argv ) {
                 end = clock();
                 double elapsed = double(end - start)/CLOCKS_PER_SEC;
                 best_so_far = make_tuple(population[0].second.second, elapsed, population[0].second.first);
-                if(flag)  cout << get<0>(best_so_far) << '\t' << get<1>(best_so_far) <<endl;
+                //if(flag)  
+                    cout << get<0>(best_so_far) << '\t' << get<1>(best_so_far) <<endl;
             }
             if (flag > 1) 
                 for (int a = 0; a < population.size(); a++)
@@ -766,7 +767,7 @@ int main( int argc, char **argv ) {
 
     //cout << "best so far is " << get<0>(best_so_far) << " at " << get<1>(best_so_far) << " seconds" <<endl;
     //if(flag) 
-    cout << get<0>(best_so_far) << '\t' << get<1>(best_so_far) <<endl;
+        cout << get<0>(best_so_far) << '\t' << get<1>(best_so_far) <<endl;
     // calculating the average of the results and computation times and write them to the screen
     double r_mean = 0.0;
     double t_mean = 0.0;

@@ -1,0 +1,22 @@
+tunning barrakuda 10000 experimentos.txt
+
+0.75
+-np 50 -pc 1 -dt 0.25 -pst 0 -ct 1 -png 0.27 -rp 0 -mr 0.97 -cpl_t 30 -bks 1 -bkn 31
+2  -np 100 -pc 0 -pst 0 -ct 0 -png 0.65 -rp 1 -pe 0.88 -mr 0.99 -cpl_t 5 -bks 0 -bkn 50
+3  -np 10 -pc 1 -dt 0.86 -pst 1 -ct 2 -png 0.85 -rp 1 -pe 0.53 -mr 0.36 -cpl_t 3 -bks 0 -bkn 4
+4  -np 100 -pc 1 -dt 0.53 -pst 1 -ct 0 -png 0.4 -rp 0 -mr 0.11 -cpl_t 5 -bks 1 -bkn 80
+5  -np 100 -pc 0 -pst 0 -ct 0 -png 0.55 -rp 1 -pe 0.69 -mr 0.89 -cpl_t 10 -bks 0 -bkn 5
+
+0.80
+1329  -np 500 -pc 0 -pst 1 -ct 0 -png 0.12 -rp 1 -pe 0.36 -mr 0.36 -cpl_t 3 -bks 0 -bkn 9
+1461  -np 100 -pc 0 -pst 1 -ct 0 -png 0.13 -rp 1 -pe 0.18 -mr 0.44 -cpl_t 5 -bks 0 -bkn 9
+1427  -np 500 -pc 0 -pst 1 -ct 0 -png 0.13 -rp 1 -pe 0.39 -mr 0.38 -cpl_t 3 -bks 0 -bkn 10
+1489  -np 500 -pc 0 -pst 1 -ct 0 -png 0.11 -rp 1 -pe 0.44 -mr 0.38 -cpl_t 3 -bks 0 -bkn 7
+1396  -np 80 -pc 0 -pst 1 -ct 0 -png 0.3 -rp 1 -pe 0.29 -mr 0.56 -cpl_t 3 -bks 0 -bkn 7
+
+0.85
+-np 30 -pc 0 -pst 0 -ct 1 -png 0.39 -rp 1 -pe 0.4 -mr 0.38 -cpl_t 75 -bks 0 -bkn 29
+1137  -np 100 -pc 1 -dt 0.22 -pst 0 -ct 1 -png 0.25 -rp 1 -pe 0.3 -mr 0.09 -cpl_t 75 -bks 0 -bkn 37
+837   -np 30 -pc 0 -pst 1 -ct 1 -png 0.16 -rp 1 -pe 0.5 -mr 0.43 -cpl_t 75 -bks 1 -bkn 28
+1210  -np 100 -pc 1 -dt 0.17 -pst 0 -ct 1 -png 0.31 -rp 1 -pe 0.34 -mr 0.11 -cpl_t 75 -bks 0 -bkn 35
+677   -np 100 -pc 1 -dt 0.19 -pst 0 -ct 1 -png 0.23 -rp 1 -pe 0.27 -mr 0.08 -cpl_t 75 -bks 0 -bkn 42
