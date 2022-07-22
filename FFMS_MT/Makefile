@@ -1,10 +1,10 @@
 #TARGET = cplex greedy local_search metaheuristic hybrid_metaheuristic
-TARGET = greedy greedyClasses pruebas p-greedy GENETIC DERIVATIVE
+TARGET = greedy greedyClasses pruebas p-greedy GENETIC DERIVATIVE BARRAKUDA p-cmsa
 CXXFLAGS = -ansi -O3 -fpermissive -std=c++17 
 
 SYSTEM     = x86-64_linux
 LIBFORMAT  = static_pic
-CPLEXDIR      = /home/eileen/Desktop/CPLEX_Studio201/cplex/
+CPLEXDIR      = /home/eileen/Desktop/CPLEX_Studio201/cplex
 CONCERTDIR    = /home/eileen/Desktop/CPLEX_Studio201/concert
 GCC = gcc
 CCC = g++
@@ -18,7 +18,7 @@ CONCERTINCDIR = $(CONCERTDIR)/include
 CPLEXINCDIR   = $(CPLEXDIR)/include
 
 CCFLAGS = $(CCOPT) -I$(CPLEXINCDIR) -I$(CONCERTINCDIR)
-
+OBJS = Timer.o
 all: ${TARGET}
 
 #cplex: cplex.o
@@ -58,6 +58,18 @@ DERIVATIVE: derivativeAnnealing.cpp
 
 #metaheuristic: metaheuristic.cpp
 #	${CCC} ${CXXFLAGS} -o $@ $^
+
+p-cmsa: p-cmsa.o $(OBJS)
+	$(CCC) $(CCFLAGS) p-cmsa.o $(OBJS) -o p-cmsa $(CCLNFLAGS)
+
+p-cmsa.o: p-cmsa.cpp 
+	$(CCC) -c $(CCFLAGS) p-cmsa.cpp -o p-cmsa.o 
+
+BARRAKUDA: BARRAKUDA.o $(OBJS)
+	$(CCC) $(CCFLAGS) BARRAKUDA.o $(OBJS) -o BARRAKUDA $(CCLNFLAGS)
+
+BARRAKUDA.o: BARRAKUDA.cpp 
+	$(CCC) -c $(CCFLAGS) BARRAKUDA.cpp -o BARRAKUDA.o 
 
 clean:
 	@rm -f *~ *.o ${TARGET} core

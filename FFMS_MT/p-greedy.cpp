@@ -108,32 +108,22 @@ int calculate_best_heuristic_option(int pos, int t_value) {
         for(int j=0;j<n_of_sequences;j++){
             if(input_sequence[j][pos]!=mapping[i]) add = 1; else add = 0;
             if(accumulated_difference[j]+add >= t_value) 
-                actual_value++;
-                    
-            
+                actual_value++;            
         }
         valores[i] = actual_value;
-        
     }
-    //cout<<"t_value "<<t_value<<endl;
-    //cout<<"Previous value "<<previous_value<<endl;
-    //cout<<valores[0]<<"-"<<valores[1]<<"-"<<valores[2]<<"-"<<valores[3]<<endl;
-
     int firstS,secondS;
     //resolver empates...
     if(valores[0]>valores[1]) firstS = 0;
         else if(valores[0]<valores[1]) firstS = 1; else firstS = rand()%2;
     if(valores[2]>valores[3]) secondS = 2;
-        else if(valores[2]<valores[3]) secondS = 3; else secondS = rand()%2+2;
-    
+        else if(valores[2]<valores[3]) secondS = 3; else secondS = rand()%2+2;   
     if(valores[firstS]>valores[secondS]) best_option = firstS;
         else if(valores[firstS]<valores[secondS]) best_option = secondS;
             else  if(rand()%2) best_option = firstS;
                 else best_option = secondS;
 
     if(previous_value < valores[best_option]) return best_option; else return -1;
-
-
 }
 
 void show_accumulated_difference() {
