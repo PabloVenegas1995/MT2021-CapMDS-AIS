@@ -1,0 +1,15 @@
+In this folder you find the implementation of the ILP model of the "minimum dominating set (MDS)" problem for CPLEX. The MDS problem is an NP-hard problem in undirected graphs. More specifically, given an undirected graph G=(V,E), each subset S of V is called a dominating set of G if each vertex v of V that does not form part of S has at least one neighbor u that forms part of S. The MDS problem requires to find a domating set S* of minimal size. 
+
+Under Linux the software compiles by executing 'make' in a console. It requires that you have the GCC comiler installed on your machine.
+
+However, before doing so you must install the CPLEX sources on your machine. For this purpose you should download the file 'CPLEX_Studio201.tgz' from the Google Drive folder 'CPLEX-Linux-Windows-Mac' and unpack it at some convenient place on your machine. In my case, for example, I have unpacked the CPLEX source file at '/home/cblum/ILOG/'. 
+
+The last thing to be done before compiling the MDS software is changing the following 2 lines in the file 'Makefile' such that the paths point to the CPLEX sources on your machine:
+
+CPLEXDIR      = /home/cblum/ILOG/CPLEX_Studio201/cplex
+CONCERTDIR    = /home/cblum/ILOG/CPLEX_Studio201/concert
+
+Executing 'make' generates an executable 'cplex_mds', which you can use in the following way:
+
+./cplex_mds -i ./instances/<nombre-fichero> -t <tiempo-limite-en-segundos>
+

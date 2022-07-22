@@ -1,0 +1,3 @@
+bin/GENETIC -i instances/100-800-003.txt -tlim 90.0 -th 0.75 -np 80 -pc 1 -dt 0.96 -ct 0 -png 0.45 -rp 2 -pe 0.53 -rrt 0 -mr 0.03
+100	0.01
+100	0.01

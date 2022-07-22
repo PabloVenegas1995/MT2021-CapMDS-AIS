@@ -1,0 +1,86 @@
+th_0.75 100 segundos{
+
+    -np 100 -pc 2 -pph 0.25 -dt 0.93 -ct 2 -png 0.28 -rp 2 -pe 0.6 -rrt 1 -mr 0.01  <<
+    -np 80 -pc 2 -pph 0.25 -dt 0.93 -ct 2 -png 0.23 -rp 2 -pe 0.6 -rrt 1 -mr 0.01
+    -np 100 -pc 2 -pph 0.25 -dt 0.99 -ct 2 -png 0.39 -rp 2 -pe 0.6 -rrt 1 -mr 0.02
+    -np 100 -pc 2 -pph 0.25 -dt 0.85 -ct 2 -png 0.32 -rp 2 -pe 0.55 -rrt 1 -mr 0
+    -np 80 -pc 2 -pph 0.25 -dt 0.97 -ct 2 -png 0.2 -rp 2 -pe 0.57 -rrt 1 -mr 0.02
+}
+
+th_0.75 90 segundos{
+
+    -np 80 -pc 1 -dt 0.96 -ct 0 -png 0.45 -rp 2 -pe 0.53 -rrt 0 -mr 0.03
+    -np 30 -pc 1 -dt 0.87 -ct 0 -png 0.61 -rp 2 -pe 0.59 -rrt 0 -mr 0
+    -np 500 -pc 0 -ct 0 -png 0.16 -rp 2 -pe 0.46 -rrt 1 -mr 0
+    -np 50 -pc 1 -dt 0.85 -ct 1 -png 0.56 -rp 2 -pe 0.66 -rrt 0 -mr 0
+    -np 500 -pc 0 -ct 0 -png 0.12 -rp 2 -pe 0.5 -rrt 1 -mr 0.01
+}
+
+th_0.8 100 segundos{
+
+-np 10 -pc 1 -dt 1 -ct 0 -png 0.49 -rp 1 -mr 0.05 <<
+-np 10 -pc 1 -dt 0.99 -ct 0 -png 0.41 -rp 1 -mr 0.16  <<
+-np 10 -pc 1 -dt 0.98 -ct 0 -png 0.53 -rp 1 -mr 0.01 <<
+-np 10 -pc 1 -dt 1 -ct 0 -png 0.52 -rp 1 -mr 0.03
+-np 10 -pc 1 -dt 1 -ct 0 -png 0.52 -rp 1 -mr 0.08
+}
+
+th_0.8 90 segundos{
+
+-np 80 -pc 1 -dt 0.9 -ct 0 -png 0.46 -rp 2 -pe 0.66 -rrt 0 -mr 0.01
+-np 80 -pc 1 -dt 0.79 -ct 0 -png 0.57 -rp 2 -pe 0.57 -rrt 0 -mr 0
+-np 80 -pc 1 -dt 0.74 -ct 0 -png 0.58 -rp 2 -pe 0.69 -rrt 0 -mr 0
+-np 80 -pc 1 -dt 0.93 -ct 0 -png 0.39 -rp 2 -pe 0.57 -rrt 0 -mr 0
+-np 80 -pc 1 -dt 0.88 -ct 0 -png 0.49 -rp 2 -pe 0.69 -rrt 0 -mr 0
+}
+
+
+th_85 100 segundos{
+
+-np 10 -pc 1 -dt 0.87 -ct 2 -png 0.53 -rp 2 -pe 0.68 -rrt 0 -mr 0.07 <<
+-np 10 -pc 1 -dt 0.94 -ct 2 -png 0.51 -rp 2 -pe 0.64 -rrt 0 -mr 0.1
+-np 80 -pc 0 -ct 2 -png 0.46 -rp 2 -pe 0.55 -rrt 1 -mr 0.01
+-np 50 -pc 0 -ct 2 -png 0.35 -rp 2 -pe 0.44 -rrt 1 -mr 0.01
+-np 100 -pc 0 -ct 2 -png 0.41 -rp 2 -pe 0.51 -rrt 1 -mr 0.01
+
+}
+
+th_85 90 segundos{
+
+-np 50 -pc 2 -pph 0.75 -dt 0.78 -ct 0 -png 0.77 -rp 2 -pe 0.92 -rrt 0 -mr 0.01
+-np 100 -pc 2 -pph 0.50 -dt 0.82 -ct 0 -png 0.54 -rp 2 -pe 0.81 -rrt 1 -mr 0.02
+-np 50 -pc 2 -pph 0.50 -dt 0.94 -ct 0 -png 0.63 -rp 2 -pe 0.89 -rrt 1 -mr 0.02
+-np 80 -pc 0 -ct 0 -png 0.45 -rp 2 -pe 0.63 -rrt 1 -mr 0.02
+-np 50 -pc 1 -dt 0.97 -ct 0 -png 0.65 -rp 2 -pe 0.98 -rrt 1 -mr 0.01
+
+}
+
+Derivative 100 segundos {
+
+-np 500 -pc 2 -pph 0.75 -dt 0.64 -ntc 7 -ct 0 -png 0.6 -rp 0 -mr 0.64
+-np 500 -pc 2 -pph 0.75 -dt 0.67 -ntc 9 -ct 0 -png 0.54 -rp 0 -mr 0.37
+-np 500 -pc 2 -pph 0.75 -dt 0.64 -ntc 7 -ct 0 -png 0.65 -rp 0 -mr 0.63
+-np 500 -pc 2 -pph 0.75 -dt 0.67 -ntc 9 -ct 0 -png 0.57 -rp 0 -mr 0.3
+-np 500 -pc 2 -pph 0.75 -dt 0.41 -ntc 9 -ct 0 -png 0.55 -rp 0 -mr 0.42
+
+}
+
+Derivative 90 segundos {
+
+-np 1250 -pc 2 -pph 0.50 -dt 0.55 -ntc 2 -stp 10 -ct 0 -png 0.66 -rp 1 -mr 0.82
+-np 1500 -pc 2 -pph 0.75 -dt 0.64 -ntc 2 -stp 9 -ct 0 -png 0.73 -rp 1 -mr 0.44
+-np 1500 -pc 2 -pph 0.50 -dt 0.77 -ntc 2 -stp 9 -ct 0 -png 0.7 -rp 1 -mr 0.48
+-np 1500 -pc 2 -pph 0.50 -dt 0.67 -ntc 2 -stp 8 -ct 0 -png 0.82 -rp 1 -mr 0.56
+-np 1500 -pc 2 -pph 0.50 -dt 0.94 -ntc 3 -stp 9 -ct 0 -png 0.76 -rp 1 -mr 0.55
+
+}
+
+Derivativa final {
+
+-np 1500 -pc 0 -ntc 8 -stp 8 -ct 0 -png 0.3 -rp 1 -mr 0.79
+-np 1500 -pc 0 -ntc 3 -stp 6 -ct 0 -png 0.58 -rp 1 -mr 0.54
+-np 1500 -pc 0 -ntc 6 -stp 7 -ct 0 -png 0.34 -rp 1 -mr 0.69
+-np 1500 -pc 0 -ntc 7 -stp 10 -ct 0 -png 0.29 -rp 1 -mr 0.92
+-np 1500 -pc 0 -ntc 5 -stp 7 -ct 0 -png 0.56 -rp 1 -mr 0.82
+
+}

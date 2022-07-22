@@ -1,0 +1,11 @@
+Each of the (at least) three techniques that you have implemented should be applied exactly once to each of the 60 problem instances that you find in the Google Drive folder 'problem_instances'. Note that, via the '-i ' command line parameter, you can apply your technique to as many problem instances as you like. Example:
+
+./greedy -i 100-300-001.txt -i 100-300-002.txt -th 0.8
+
+In this example, you apply your greedy heuristic to the two problem instances 100-300-001.txt and 100-300-002.txt. At the end of the output, the results will be provided in a summarized way (averages) on the screen. In particular, the average of the objective function values of the solutions produced for the 2 input files will be written to the screen, in addition to the average computation time.
+
+Please allow 90 seconds per problem instance ('-tlim 90.0') for each application of CPLEX (if implemented), your metaheuristic (if implemented) and your hybrid metaheuristic (if implemented).  
+
+Please repeat these experiments for three different thresholds t in {0.75, 0.8, 0.85}. The threshold to be applied is given to the programs via '-th 0.75', for example.
+
+Results should be provided in terms of averages over the 10 instances of each of the 6 types, resulting from each combination of n in {100, 200} and m in {300, 600, 800}. As an example look at Table 2 of paper 'Hybrid_ACO_FFMSP.pdf' that you find in the Google Drive folder 'additional_literature'.
